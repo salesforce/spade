@@ -1,0 +1,9 @@
+target
+
+# vim stuff
+*.swp
+
+# IntelleJ
+.idea
+
+.env
