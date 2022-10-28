@@ -66,7 +66,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "spade"
   )
-  .aggregate(core, aws, examples)
+  .aggregate(core, aws)
 
 lazy val core = (project in file("spade-core"))
   .enablePlugins(BuildInfoPlugin)
