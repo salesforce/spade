@@ -9,7 +9,7 @@ lazy val publishSettings = Seq(
   publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
   publishTo := sonatypePublishToBundle.value,
-  licenses := Seq("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
+  licenses := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0")),
   homepage := Some(url("https://github.com/salesforce/spade")),
   scmInfo := Some(
     ScmInfo(
@@ -71,7 +71,6 @@ lazy val root = (project in file("."))
 lazy val core = (project in file("spade-core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
   .settings(
     name := "spade-core",
     buildInfoKeys := Seq[BuildInfoKey](name, version),
@@ -80,23 +79,22 @@ lazy val core = (project in file("spade-core"))
       telepathyDep,
       typesafeConfigDep,
       scoptDep
-    ),
-    publishTo := sonatypePublishToBundle.value
+    )
   )
+  .settings(publishSettings: _*)
 
 lazy val aws = (project in file("spade-aws"))
   .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
   .settings(
-    name := "spade-aws",
-    publishTo := sonatypePublishToBundle.value
+    name := "spade-aws"
   )
   .dependsOn(core)
+  .settings(publishSettings: _*)
 
 lazy val examples = (project in file("spade-examples"))
   .settings(commonSettings: _*)
-  .settings(noPublishSettings: _*)
   .settings(
     name := "spade-examples"
   )
+  .settings(noPublishSettings: _*)
   .dependsOn(aws)
