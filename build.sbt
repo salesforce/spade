@@ -49,7 +49,8 @@ lazy val noPublishSettings = Seq(
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint"), // , "-Xfatal-warnings"),
   scalaVersion := scala213,
-  crossScalaVersions := supportedScalaVersions,
+  // Remove cross publish for now
+  // crossScalaVersions := supportedScalaVersions,
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Seq("-Xlint:-byname-implicit,_")
     case _ => Seq.empty[String]
