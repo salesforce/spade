@@ -34,6 +34,14 @@ lazy val publishSettings = Seq(
   useGpgPinentry := true
 )
 
+lazy val noPublishSettings = Seq(
+  publishArtifact := false,
+  publish := {},
+  publishLocal := {},
+  // to fix the problem of "Repository for publishing is not specified."
+  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo")))
+)
+
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint"), // , "-Xfatal-warnings"),
   scalaVersion := "2.13.9",
@@ -55,7 +63,6 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
   .settings(
     name := "spade"
   )
@@ -64,6 +71,7 @@ lazy val root = (project in file("."))
 lazy val core = (project in file("spade-core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "spade-core",
     buildInfoKeys := Seq[BuildInfoKey](name, version),
@@ -77,6 +85,7 @@ lazy val core = (project in file("spade-core"))
 
 lazy val aws = (project in file("spade-aws"))
   .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "spade-aws"
   )
@@ -84,6 +93,7 @@ lazy val aws = (project in file("spade-aws"))
 
 lazy val examples = (project in file("spade-examples"))
   .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
   .settings(
     name := "spade-examples"
   )
