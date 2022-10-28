@@ -9,6 +9,7 @@ lazy val publishSettings = Seq(
   publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
   publishTo := sonatypePublishToBundle.value,
+  licenses := Seq("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
   homepage := Some(url("https://github.com/salesforce/spade")),
   scmInfo := Some(
     ScmInfo(
