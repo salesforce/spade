@@ -69,6 +69,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
   .settings(
     name := "spade"
   )
@@ -91,6 +92,7 @@ lazy val core = (project in file("spade-core"))
 
 lazy val aws = (project in file("spade-aws"))
   .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
   .settings(
     name := "spade-aws"
   )
@@ -99,8 +101,8 @@ lazy val aws = (project in file("spade-aws"))
 
 lazy val examples = (project in file("spade-examples"))
   .settings(commonSettings: _*)
+  .settings(noPublishSettings: _*)
   .settings(
     name := "spade-examples"
   )
-  .settings(noPublishSettings: _*)
   .dependsOn(aws)
