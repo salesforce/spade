@@ -1,3 +1,7 @@
+lazy val scala212 = "2.12.17"
+lazy val scala213 = "2.13.10"
+lazy val supportedScalaVersions = List(scala212, scala213)
+
 val circeVersion = "0.14.2"
 
 val scalaTestArtifact = "org.scalatest" %% "scalatest" % "3.2.+" % Test
@@ -44,7 +48,8 @@ lazy val noPublishSettings = Seq(
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint"), // , "-Xfatal-warnings"),
-  scalaVersion := "2.13.9",
+  scalaVersion := scala213,
+  crossScalaVersions := supportedScalaVersions,
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Seq("-Xlint:-byname-implicit,_")
     case _ => Seq.empty[String]

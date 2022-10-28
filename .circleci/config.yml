@@ -45,7 +45,7 @@ jobs:
 
   publish:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: cimg/openjdk:8.0
     steps:
       - checkout
       - run: gpg --version && (echo $PGP_SECRET | base64 --decode | gpg --import --no-tty --batch --yes) && gpg --list-secret-keys
