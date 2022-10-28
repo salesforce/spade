@@ -5,6 +5,34 @@ val telepathyDep = "com.salesforce.mce" %% "telepathy" % "1.5.0"
 val typesafeConfigDep = "com.typesafe" % "config" % "1.4.2"
 val scoptDep = "com.github.scopt" %% "scopt" % "4.1.0"
 
+lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  pomIncludeRepository := { _ => false },
+  publishTo := sonatypePublishToBundle.value,
+  homepage := Some(url("https://github.com/salesforce/spade")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/salesforce/spade"),
+      "scm:git:git@github.com:salesforce/spade.git"
+    )
+  ),
+  credentials += Credentials(
+    "Sonatype Nexus Repository Manager",
+    "oss.sonatype.org",
+    sys.env.getOrElse("SONATYPE_USERNAME",""),
+    sys.env.getOrElse("SONATYPE_PASSWORD","")
+  ),
+  developers := List(
+    Developer(
+      id = "realstraw",
+      name = "Kexin Xie",
+      email = "kexin.xie@salesforce.com",
+      url = url("http://github.com/realstraw")
+    )
+  ),
+  useGpgPinentry := true
+)
+
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint"), // , "-Xfatal-warnings"),
   scalaVersion := "2.13.9",
@@ -15,11 +43,19 @@ lazy val commonSettings = Seq(
   libraryDependencies += scalaTestArtifact,
   fork := true,
   organization := "com.salesforce.mce",
+  headerLicense := Some(HeaderLicense.Custom(
+  """|Copyright (c) 2022, salesforce.com, inc.
+     |All rights reserved.
+     |SPDX-License-Identifier: BSD-3-Clause
+     |For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+     |""".stripMargin
+  ))
   assembly / test := {}  // skip test during assembly
 )
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "spade"
   )
