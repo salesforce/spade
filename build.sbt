@@ -80,14 +80,16 @@ lazy val core = (project in file("spade-core"))
       telepathyDep,
       typesafeConfigDep,
       scoptDep
-    )
+    ),
+    publishTo := sonatypePublishToBundle.value
   )
 
 lazy val aws = (project in file("spade-aws"))
   .settings(commonSettings: _*)
   .settings(publishSettings: _*)
   .settings(
-    name := "spade-aws"
+    name := "spade-aws",
+    publishTo := sonatypePublishToBundle.value
   )
   .dependsOn(core)
 
