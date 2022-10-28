@@ -1,5 +1,7 @@
 package com.salesforce.mce.spade.orchard
 
+import scala.collection.compat._
+
 import io.circe.generic.semiauto._
 import io.circe.{Decoder, Encoder, Json}
 
@@ -58,15 +60,19 @@ object WorkflowRequest {
       )
     }.toSeq
 
-    val resources = graph.activities.values.map(_.runsOn).toSeq.distinctBy(_.id).map { r =>
-      Resource(
-        r.id,
-        r.name,
-        r.resourceType,
-        r.resourceSpec,
-        r.maxAttempt.getOrElse(ctx.maxAttempt)
-      )
-    }
+    val resources = graph.activities.values
+      .map(_.runsOn)
+      .toSeq
+      .map { r =>
+        Resource(
+          r.id,
+          r.name,
+          r.resourceType,
+          r.resourceSpec,
+          r.maxAttempt.getOrElse(ctx.maxAttempt)
+        )
+      }
+      .distinct
 
     val dependencies = graph.flows.map(_.swap).groupMap(_._1)(_._2).view.mapValues(_.toSeq).toMap
 

@@ -8,12 +8,13 @@ val scalaTestArtifact = "org.scalatest" %% "scalatest" % "3.2.+" % Test
 val telepathyDep = "com.salesforce.mce" %% "telepathy" % "1.5.0"
 val typesafeConfigDep = "com.typesafe" % "config" % "1.4.2"
 val scoptDep = "com.github.scopt" %% "scopt" % "4.1.0"
+val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
   publishTo := sonatypePublishToBundle.value,
-  licenses := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0")),
+  licenses := Seq("BSD-3-Clause" -> url("https://opensource.org/licenses/BSD-3-Clause")),
   homepage := Some(url("https://github.com/salesforce/spade")),
   scmInfo := Some(
     ScmInfo(
@@ -48,9 +49,8 @@ lazy val noPublishSettings = Seq(
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint"), // , "-Xfatal-warnings"),
-  scalaVersion := scala213,
-  // Remove cross publish for now
-  // crossScalaVersions := supportedScalaVersions,
+  scalaVersion := scala212,
+  crossScalaVersions := supportedScalaVersions,
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => Seq("-Xlint:-byname-implicit,_")
     case _ => Seq.empty[String]
@@ -85,7 +85,8 @@ lazy val core = (project in file("spade-core"))
     libraryDependencies ++= Seq(
       telepathyDep,
       typesafeConfigDep,
-      scoptDep
+      scoptDep,
+      scalaComatDep
     )
   )
   .settings(publishSettings: _*)
