@@ -73,11 +73,12 @@ lazy val root = (project in file("."))
   .settings(
     name := "spade"
   )
-  .aggregate(core, aws)
+  .aggregate(core, aws, examples)
 
 lazy val core = (project in file("spade-core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "spade-core",
     buildInfoKeys := Seq[BuildInfoKey](name, version),
@@ -89,16 +90,14 @@ lazy val core = (project in file("spade-core"))
       scalaComatDep
     )
   )
-  .settings(publishSettings: _*)
 
 lazy val aws = (project in file("spade-aws"))
   .settings(commonSettings: _*)
-  .settings(noPublishSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "spade-aws"
   )
   .dependsOn(core)
-  .settings(publishSettings: _*)
 
 lazy val examples = (project in file("spade-examples"))
   .settings(commonSettings: _*)
