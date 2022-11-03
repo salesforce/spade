@@ -9,18 +9,18 @@ package com.salesforce.mce.spade
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-class SpadeContext private (config: Config) {
-
-  def maxAttempt = config.getInt("max-attempt")
-
-}
+case class SpadeContext(maxAttempt: Int)
 
 object SpadeContext {
 
   val configPath = "com.salesforce.mce.spade"
 
-  def withRootConfig(rootConfig: Config): SpadeContext =
-    new SpadeContext(rootConfig.getConfig(configPath))
+  def withRootConfig(rootConfig: Config): SpadeContext = {
+    val config = rootConfig.getConfig(configPath)
+    SpadeContext(
+      config.getInt("max-attempt")
+    )
+  }
 
   def apply(): SpadeContext = withRootConfig(ConfigFactory.load())
 
