@@ -15,5 +15,5 @@ case class Activity[R](
   activityType: String,
   activitySpec: Json,
   runsOn: Resource[R],
-  maxAttempt: Option[Int]
+  maxAttempt: Int
 )

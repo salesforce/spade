@@ -7,15 +7,13 @@
 
 package com.salesforce.mce.spade.cli
 
-import scopt.OParser
 import io.circe.syntax._
+import scopt.OParser
 
 import com.salesforce.mce.spade.orchard.WorkflowRequest
-import com.salesforce.mce.spade.{SpadeContext, SpadeWorkflow, BuildInfo}
+import com.salesforce.mce.spade.{BuildInfo, SpadeWorkflow}
 
 trait SpadeCli { self: SpadeWorkflow =>
-
-  implicit lazy val ctx: SpadeContext = SpadeContext()
 
   def main(args: Array[String]): Unit = {
     val builder = OParser.builder[CliOptions]

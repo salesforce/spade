@@ -12,7 +12,6 @@ import scala.collection.compat._
 import io.circe.generic.semiauto._
 import io.circe.{Decoder, Encoder, Json}
 
-import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowGraph}
 
 case class WorkflowRequest(
@@ -51,9 +50,7 @@ object WorkflowRequest {
   implicit val encoder: Encoder[WorkflowRequest] = deriveEncoder[WorkflowRequest]
   implicit val decoder: Decoder[WorkflowRequest] = deriveDecoder[WorkflowRequest]
 
-  def apply(name: String, workflowExp: WorkflowExpression)(implicit
-    ctx: SpadeContext
-  ): WorkflowRequest = {
+  def apply(name: String, workflowExp: WorkflowExpression): WorkflowRequest = {
     val graph = WorkflowGraph(workflowExp)
 
     val activities = graph.activities.values.map { act =>
@@ -63,7 +60,7 @@ object WorkflowRequest {
         act.activityType,
         act.activitySpec,
         act.runsOn.id,
-        act.maxAttempt.getOrElse(ctx.maxAttempt)
+        act.maxAttempt
       )
     }.toSeq
 
@@ -76,7 +73,7 @@ object WorkflowRequest {
           r.name,
           r.resourceType,
           r.resourceSpec,
-          r.maxAttempt.getOrElse(ctx.maxAttempt)
+          r.maxAttempt
         )
       }
       .distinct
