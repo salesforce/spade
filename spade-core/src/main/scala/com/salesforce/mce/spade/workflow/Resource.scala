@@ -14,5 +14,5 @@ case class Resource[+R](
   name: String,
   resourceType: String,
   resourceSpec: Json,
-  maxAttempt: Option[Int]
+  maxAttempt: Int
 )

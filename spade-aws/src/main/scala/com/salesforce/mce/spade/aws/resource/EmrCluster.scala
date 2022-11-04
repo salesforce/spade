@@ -11,6 +11,7 @@ import java.util.UUID
 
 import io.circe.syntax._
 
+import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.aws.SpadeAwsContext
 import com.salesforce.mce.spade.aws.spec.{AwsTag, EmrResourceSpec}
 import com.salesforce.mce.spade.workflow.Resource
@@ -24,14 +25,16 @@ object EmrCluster {
   case class Builder(
     nameOpt: Option[String],
     applications: Seq[String],
-    instanceCountOpt: Option[Int]
+    instanceCountOpt: Option[Int],
+    maxAttempt: Option[Int]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
     def withApplication(application: String) = copy(applications = applications :+ application)
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
+    def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
-    def build()(implicit sac: SpadeAwsContext): Resource[EmrCluster] = {
+    def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"EmrCluster-$id")
@@ -55,11 +58,11 @@ object EmrCluster {
             sac.emr.slaveInstanceType
           )
         ).asJson,
-        None
+        maxAttempt.getOrElse(ctx.maxAttempt)
       )
     }
   }
 
-  def builder(): EmrCluster.Builder = Builder(None, Seq.empty, None)
+  def builder(): EmrCluster.Builder = Builder(None, Seq.empty, None, None)
 
 }

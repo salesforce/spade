@@ -14,6 +14,7 @@ import io.circe.syntax._
 import com.salesforce.mce.spade.aws.resource.EmrCluster
 import com.salesforce.mce.spade.aws.spec.EmrActivitySpec
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
+import com.salesforce.mce.spade.SpadeContext
 
 trait EmrActivity
 
@@ -24,13 +25,15 @@ object EmrActivity {
   case class Builder(
     nameOpt: Option[String],
     steps: Seq[EmrActivitySpec.Step],
-    runsOn: Resource[EmrCluster]
+    runsOn: Resource[EmrCluster],
+    maxAttempty: Option[Int]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
     def withSteps(moreSteps: EmrActivitySpec.Step*) = copy(steps = steps ++ moreSteps)
+    def withMaxAttempty(n: Int) = copy(maxAttempty = Option(n))
 
-    def build(): Activity[EmrCluster] = {
+    def build()(implicit ctx: SpadeContext): Activity[EmrCluster] = {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"EmrActivity-$id")
@@ -41,11 +44,11 @@ object EmrActivity {
         ActivityType,
         EmrActivitySpec(steps).asJson,
         runsOn,
-        None
+        maxAttempty.getOrElse(ctx.maxAttempt)
       )
     }
 
   }
 
-  def builder(emrCluster: Resource[EmrCluster]) = Builder(None, Seq.empty, emrCluster)
+  def builder(emrCluster: Resource[EmrCluster]) = Builder(None, Seq.empty, emrCluster, None)
 }
