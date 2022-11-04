@@ -11,7 +11,7 @@ import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowExpression
 
 trait SpadeWorkflow extends WorkflowExpressionImplicits {
 
-  implicit val spadeContext: SpadeContext = SpadeContext()
+  implicit lazy val spadeContext: SpadeContext = SpadeContext()
 
   def name: String = this.getClass().getCanonicalName().stripSuffix("$")
 
