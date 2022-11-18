@@ -26,12 +26,18 @@ object EmrCluster {
     nameOpt: Option[String],
     applications: Seq[String],
     instanceCountOpt: Option[Int],
+    additionalMasterSecurityGroupIds: Seq[String],
+    additionalSlaveSecurityGroupIds: Seq[String],
     maxAttempt: Option[Int]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
     def withApplication(application: String) = copy(applications = applications :+ application)
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
+    def withAdditionalMasterSecurityGroupIds(groupIds: String*) =
+      copy(additionalMasterSecurityGroupIds = additionalMasterSecurityGroupIds ++ groupIds)
+    def withAdditionalSlaveSecurityGroupIds(groupIds: String*) =
+      copy(additionalSlaveSecurityGroupIds = additionalSlaveSecurityGroupIds ++ groupIds)
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
@@ -55,7 +61,11 @@ object EmrCluster {
             sac.emr.ec2KeyName,
             instanceCount,
             sac.emr.masterInstanceType,
-            sac.emr.slaveInstanceType
+            sac.emr.slaveInstanceType,
+            if (additionalMasterSecurityGroupIds.isEmpty) None
+            else Option(additionalMasterSecurityGroupIds),
+            if (additionalSlaveSecurityGroupIds.isEmpty) None
+            else Option(additionalSlaveSecurityGroupIds)
           )
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt)
@@ -63,6 +73,6 @@ object EmrCluster {
     }
   }
 
-  def builder(): EmrCluster.Builder = Builder(None, Seq.empty, None, None)
+  def builder(): EmrCluster.Builder = Builder(None, Seq.empty, None, Seq.empty, Seq.empty, None)
 
 }

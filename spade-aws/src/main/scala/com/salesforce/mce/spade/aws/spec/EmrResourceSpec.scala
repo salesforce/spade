@@ -26,7 +26,9 @@ object EmrResourceSpec {
     ec2KeyName: String,
     instanceCount: Int,
     masterInstanceType: String,
-    slaveInstanceType: String
+    slaveInstanceType: String,
+    additionalMasterSecurityGroups: Option[Seq[String]],
+    additionalSlaveSecurityGroups: Option[Seq[String]]
   )
 
   implicit val icDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
