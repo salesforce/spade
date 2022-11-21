@@ -23,7 +23,7 @@ object EmrCluster {
 
   final val ResourceType = "aws.resource.EmrResource"
 
-  case class BootstrapAction(path: String, args: Seq[String])
+  case class BootstrapAction(path: String, args: String*)
 
   case class Builder(
     nameOpt: Option[String],
