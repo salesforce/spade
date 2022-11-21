@@ -15,6 +15,7 @@ import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.aws.SpadeAwsContext
 import com.salesforce.mce.spade.aws.spec.{AwsTag, EmrResourceSpec}
 import com.salesforce.mce.spade.workflow.Resource
+import com.salesforce.mce.spade.aws.util._
 
 trait EmrCluster
 
@@ -22,22 +23,33 @@ object EmrCluster {
 
   final val ResourceType = "aws.resource.EmrResource"
 
+  case class BootstrapAction(path: String, args: Seq[String])
+
   case class Builder(
     nameOpt: Option[String],
     applications: Seq[String],
     instanceCountOpt: Option[Int],
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
+    bootstrapActions: Seq[BootstrapAction],
     maxAttempt: Option[Int]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
+
     def withApplication(application: String) = copy(applications = applications :+ application)
+
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
+
     def withAdditionalMasterSecurityGroupIds(groupIds: String*) =
       copy(additionalMasterSecurityGroupIds = additionalMasterSecurityGroupIds ++ groupIds)
+
     def withAdditionalSlaveSecurityGroupIds(groupIds: String*) =
       copy(additionalSlaveSecurityGroupIds = additionalSlaveSecurityGroupIds ++ groupIds)
+
+    def withBootstrapActions(bas: BootstrapAction*) =
+      copy(bootstrapActions = bootstrapActions ++ bas)
+
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
@@ -56,16 +68,15 @@ object EmrCluster {
           sac.emr.serviceRole,
           sac.emr.resourceRole,
           Option(sac.emr.tags.map { case (k, v) => AwsTag(k, v) }),
+          bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           EmrResourceSpec.InstancesConfig(
             sac.emr.subnetId,
             sac.emr.ec2KeyName,
             instanceCount,
             sac.emr.masterInstanceType,
             sac.emr.slaveInstanceType,
-            if (additionalMasterSecurityGroupIds.isEmpty) None
-            else Option(additionalMasterSecurityGroupIds),
-            if (additionalSlaveSecurityGroupIds.isEmpty) None
-            else Option(additionalSlaveSecurityGroupIds)
+            additionalMasterSecurityGroupIds.asOption(),
+            additionalSlaveSecurityGroupIds.asOption()
           )
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt)
@@ -73,6 +84,7 @@ object EmrCluster {
     }
   }
 
-  def builder(): EmrCluster.Builder = Builder(None, Seq.empty, None, Seq.empty, Seq.empty, None)
+  def builder(): EmrCluster.Builder =
+    Builder(None, Seq.empty, None, Seq.empty, Seq.empty, Seq.empty, None)
 
 }
