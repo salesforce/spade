@@ -17,6 +17,7 @@ case class EmrResourceSpec(
   resourceRole: String,
   tags: Option[Seq[AwsTag]],
   bootstrapActions: Option[Seq[EmrResourceSpec.BootstrapAction]],
+  configurations: Option[Seq[EmrResourceSpec.Configuration]],
   instancesConfig: EmrResourceSpec.InstancesConfig
 )
 
@@ -38,6 +39,14 @@ object EmrResourceSpec {
   case class BootstrapAction(path: String, args: Seq[String])
   implicit val baDecoder: Decoder[BootstrapAction] = deriveDecoder[BootstrapAction]
   implicit val baEncoder: Encoder[BootstrapAction] = deriveEncoder[BootstrapAction]
+
+  case class Configuration(
+    classification: String,
+    properties: Option[Map[String, String]],
+    configurations: Option[Seq[Configuration]]
+  )
+  implicit val confDecoder: Decoder[Configuration] = deriveDecoder[Configuration]
+  implicit val confEncoder: Encoder[Configuration] = deriveEncoder[Configuration]
 
   implicit val decoder: Decoder[EmrResourceSpec] = deriveDecoder[EmrResourceSpec]
   implicit val encoder: Encoder[EmrResourceSpec] = deriveEncoder[EmrResourceSpec]

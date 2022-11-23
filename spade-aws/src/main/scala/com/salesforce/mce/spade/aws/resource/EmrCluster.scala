@@ -32,6 +32,7 @@ object EmrCluster {
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
     bootstrapActions: Seq[BootstrapAction],
+    configurations: Seq[EmrConfiguration],
     maxAttempt: Option[Int]
   ) {
 
@@ -49,6 +50,9 @@ object EmrCluster {
 
     def withBootstrapActions(bas: BootstrapAction*) =
       copy(bootstrapActions = bootstrapActions ++ bas)
+
+    def withConfigurations(cs: EmrConfiguration*) =
+      copy(configurations = configurations ++ cs)
 
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
@@ -69,6 +73,7 @@ object EmrCluster {
           sac.emr.resourceRole,
           Option(sac.emr.tags.map { case (k, v) => AwsTag(k, v) }),
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
+          configurations.map(_.asSpec()).asOption(),
           EmrResourceSpec.InstancesConfig(
             sac.emr.subnetId,
             sac.emr.ec2KeyName,
@@ -85,6 +90,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder =
-    Builder(None, Seq.empty, None, Seq.empty, Seq.empty, Seq.empty, None)
+    Builder(None, Seq.empty, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None)
 
 }
