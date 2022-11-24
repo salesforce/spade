@@ -24,13 +24,13 @@ object EmrActivity {
 
   case class Builder(
     nameOpt: Option[String],
-    steps: Seq[EmrActivitySpec.Step],
+    steps: Seq[EmrStep],
     runsOn: Resource[EmrCluster],
     maxAttempt: Option[Int]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
-    def withSteps(moreSteps: EmrActivitySpec.Step*) = copy(steps = steps ++ moreSteps)
+    def withSteps(moreSteps: EmrStep*) = copy(steps = steps ++ moreSteps)
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
     def build()(implicit ctx: SpadeContext): Activity[EmrCluster] = {
@@ -42,7 +42,7 @@ object EmrActivity {
         id,
         name,
         ActivityType,
-        EmrActivitySpec(steps).asJson,
+        EmrActivitySpec(steps.map(_.asSpec())).asJson,
         runsOn,
         maxAttempt.getOrElse(ctx.maxAttempt)
       )
