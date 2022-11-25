@@ -13,8 +13,8 @@ object ExampleWorkflow extends SpadeWorkflow with SpadeCli {
 
   val emrCluster = EmrCluster.builder().build()
 
-  val act1 = EmrActivity.builder(emrCluster).withSteps(EmrStep("", Seq.empty)).build()
-  val act2 = EmrActivity.builder(emrCluster).withSteps(EmrStep("", Seq.empty)).build()
+  val act1 = EmrActivity.builder(emrCluster).withSteps(EmrStep("s3://somebucket/some.jar")).build()
+  val act2 = EmrActivity.builder(emrCluster).withSteps(EmrStep("s3://somebucket/some.jar")).build()
 
   override def workflow: WorkflowExpression = act1 ~> act2
 
