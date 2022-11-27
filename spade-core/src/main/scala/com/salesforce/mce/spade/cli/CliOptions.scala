@@ -8,5 +8,7 @@
 package com.salesforce.mce.spade.cli
 
 case class CliOptions(
-  command: Command
+  command: Command,
+  host: String = "http://127.0.0.1",
+  pipelineId: String = ""
 )

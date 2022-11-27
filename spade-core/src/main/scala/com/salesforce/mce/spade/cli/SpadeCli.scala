@@ -23,16 +23,50 @@ trait SpadeCli { self: SpadeWorkflow =>
       OParser.sequence(
         programName("spade-cli"),
         head("spade-cli", BuildInfo.version),
-        help("help").text("prints this usage text")
+        help("help").text("prints this usage text"),
+
+        cmd("generate")
+          .action((_, c) => c.copy(command = Command.Generate)),
+
+        cmd("create")
+          .action((_, c) => c.copy(command = Command.Create))
+          .children(
+            opt[String]('h', "host")
+              .action((x, c) => c.copy(host = x))
+              .text("orchard host name")
+          ),
+
+        cmd("activate")
+          .action((_, c) => c.copy(command = Command.Activate))
+          .children(
+            opt[String]('h', "host")
+              .action((x, c) => c.copy(host = x))
+              .text("orchard host name"),
+            opt[String]("pipeline-id")
+              .required()
+              .action((x, c) => c.copy(pipelineId = x))
+              .text("pipeline ID")
+          )
+
       )
     }
 
     OParser.parse(parser, args, CliOptions(Command.Generate)) match {
       case Some(opts) =>
-        val request = WorkflowRequest(self.name, self.workflow)
-        println(request.asJson)
+        val exitStatus = opts.command match {
+          case Command.Generate =>
+            val request = WorkflowRequest(self.name, self.workflow)
+            println(request.asJson)
+            0
+          case Command.Create =>
+            new CreateCommand(opts, self).run()
+          case Command.Activate =>
+            new ActivateCommand(opts).run()
+        }
+        System.exit(exitStatus)
       case None =>
         println("error")
+        System.exit(1)
     }
 
   }
