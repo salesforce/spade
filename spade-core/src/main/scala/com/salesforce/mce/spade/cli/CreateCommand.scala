@@ -2,21 +2,20 @@ package com.salesforce.mce.spade.cli
 
 import okhttp3.HttpUrl
 
-import com.salesforce.mce.spade.SpadeWorkflow
-import com.salesforce.mce.spade.orchard.WorkflowRequest
-import com.salesforce.mce.telepathy.{HttpRequest, TelepathySetting}
+import com.salesforce.mce.spade.SpadePipeline
+import com.salesforce.mce.spade.orchard.Client
 
-class CreateCommand(opt: CliOptions, workflow: SpadeWorkflow) {
+class CreateCommand(opt: CliOptions, pipeline: SpadePipeline) {
 
   def run(): Int = {
-    implicit val telepathySetting = TelepathySetting()
 
-    val workflowId = HttpRequest.post[String, WorkflowRequest](
-      HttpUrl.parse(s"${opt.host}/v1/workflow"),
-      WorkflowRequest(workflow.name, workflow.workflow)
-    )
+    new Client(HttpUrl.parse(opt.host)).create(pipeline).foreach { clientForPipeline =>
+      println(clientForPipeline.workflowId)
 
-    println(workflowId)
+      if (opt.activate) {
+        clientForPipeline.activate()
+      }
+    }
 
     0
   }

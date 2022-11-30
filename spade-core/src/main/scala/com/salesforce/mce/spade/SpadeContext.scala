@@ -9,7 +9,7 @@ package com.salesforce.mce.spade
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-case class SpadeContext(maxAttempt: Int)
+case class SpadeContext(maxAttempt: Int, orchardHost: String)
 
 object SpadeContext {
 
@@ -18,7 +18,8 @@ object SpadeContext {
   def withRootConfig(rootConfig: Config): SpadeContext = {
     val config = rootConfig.getConfig(configPath)
     SpadeContext(
-      config.getInt("max-attempt")
+      config.getInt("max-attempt"),
+      config.getString("orchard.host")
     )
   }
 

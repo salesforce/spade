@@ -11,9 +11,9 @@ import io.circe.syntax._
 import scopt.OParser
 
 import com.salesforce.mce.spade.orchard.WorkflowRequest
-import com.salesforce.mce.spade.{BuildInfo, SpadeWorkflow}
+import com.salesforce.mce.spade.{BuildInfo, SpadePipeline}
 
-trait SpadeCli { self: SpadeWorkflow =>
+trait SpadeCli { self: SpadePipeline =>
 
   def main(args: Array[String]): Unit = {
     val builder = OParser.builder[CliOptions]
@@ -33,7 +33,10 @@ trait SpadeCli { self: SpadeWorkflow =>
           .children(
             opt[String]('h', "host")
               .action((x, c) => c.copy(host = x))
-              .text("orchard host name")
+              .text("Orchard host name"),
+            opt[Unit]("activate")
+              .action((_, c) => c.copy(activate = true))
+              .text("If specified, the newly created pipeline will be activated.")
           ),
 
         cmd("activate")
@@ -42,10 +45,10 @@ trait SpadeCli { self: SpadeWorkflow =>
             opt[String]('h', "host")
               .action((x, c) => c.copy(host = x))
               .text("orchard host name"),
-            opt[String]("pipeline-id")
+            opt[String]("workflow-id")
               .required()
-              .action((x, c) => c.copy(pipelineId = x))
-              .text("pipeline ID")
+              .action((x, c) => c.copy(workflowId = x))
+              .text("Workflow ID")
           )
 
       )

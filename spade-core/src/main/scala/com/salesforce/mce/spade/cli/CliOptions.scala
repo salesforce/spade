@@ -7,8 +7,22 @@
 
 package com.salesforce.mce.spade.cli
 
+import com.salesforce.mce.spade.SpadeContext
+
 case class CliOptions(
   command: Command,
-  host: String = "http://127.0.0.1",
-  pipelineId: String = ""
+  host: String,
+  workflowId: String,
+  activate: Boolean
 )
+
+object CliOptions {
+
+  def apply(command: Command)(implicit spadeCtx: SpadeContext): CliOptions = CliOptions(
+    command = command,
+    host = spadeCtx.orchardHost,
+    workflowId = "",
+    activate = false
+  )
+
+}

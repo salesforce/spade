@@ -9,7 +9,7 @@ package com.salesforce.mce.spade
 
 import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowExpressionImplicits}
 
-trait SpadeWorkflow extends WorkflowExpressionImplicits {
+trait SpadePipeline extends WorkflowExpressionImplicits {
 
   implicit lazy val spadeContext: SpadeContext = SpadeContext()
 
