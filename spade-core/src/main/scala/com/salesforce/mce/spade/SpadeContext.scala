@@ -7,11 +7,17 @@
 
 package com.salesforce.mce.spade
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 
-case class SpadeContext(maxAttempt: Int, orchardHost: String)
+case class SpadeContext(maxAttempt: Int, orchardHost: String, apiKey: Option[String])
 
 object SpadeContext {
+
+  def optionIfMissing[A](result: =>A): Option[A] = try {
+    Option(result)
+  } catch {
+    case e: ConfigException.Missing => None
+  }
 
   val configPath = "com.salesforce.mce.spade"
 
@@ -19,7 +25,8 @@ object SpadeContext {
     val config = rootConfig.getConfig(configPath)
     SpadeContext(
       config.getInt("max-attempt"),
-      config.getString("orchard.host")
+      config.getString("orchard.host"),
+      optionIfMissing(config.getString("orchard.api-key"))
     )
   }
 
