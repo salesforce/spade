@@ -12,7 +12,9 @@ import com.salesforce.mce.spade.SpadeContext
 case class CliOptions(
   command: Command,
   host: String,
+  apiKey: Option[String],
   workflowId: String,
+  pipelineName: String,
   activate: Boolean
 )
 
@@ -20,8 +22,10 @@ object CliOptions {
 
   def apply(command: Command)(implicit spadeCtx: SpadeContext): CliOptions = CliOptions(
     command = command,
+    apiKey = spadeCtx.apiKey,
     host = spadeCtx.orchardHost,
     workflowId = "",
+    pipelineName = "",
     activate = false
   )
 

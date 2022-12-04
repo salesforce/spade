@@ -17,4 +17,8 @@ object Command {
 
   case object Activate extends Command
 
+  case object Delete extends Command
+
+  case object Get extends Command
+
 }
