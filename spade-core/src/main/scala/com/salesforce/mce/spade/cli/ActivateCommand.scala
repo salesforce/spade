@@ -1,8 +1,8 @@
 package com.salesforce.mce.spade.cli
 
 import okhttp3.HttpUrl
-import com.salesforce.mce.spade.orchard.OrchardClientForPipeline
-import com.salesforce.mce.spade.orchard.OrchardClient
+
+import com.salesforce.mce.spade.orchard.{OrchardClient, OrchardClientForPipeline}
 
 class ActivateCommand(opt: CliOptions) {
 

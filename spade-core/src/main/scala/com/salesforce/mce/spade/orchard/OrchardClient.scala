@@ -40,7 +40,7 @@ class OrchardClient(setting: OrchardClient.Setting) {
           .addQueryParameter("like", pipelineName)
           .build()
       )
-      .map { 
+      .map {
         case p :: Nil =>
           Option(new OrchardClientForPipeline(setting, p.id))
         case Nil =>
