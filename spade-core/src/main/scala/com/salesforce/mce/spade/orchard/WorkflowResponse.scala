@@ -1,7 +1,8 @@
 package com.salesforce.mce.spade.orchard
 
-import io.circe.generic.semiauto._
 import java.time.LocalDateTime
+
+import io.circe.generic.semiauto._
 
 case class WorkflowResponse(
   id: String,

@@ -1,7 +1,8 @@
 package com.salesforce.mce.spade.cli
 
-import com.salesforce.mce.spade.orchard.OrchardClient
 import okhttp3.HttpUrl
+
+import com.salesforce.mce.spade.orchard.OrchardClient
 
 class GetCommand(opt: CliOptions) {
 
