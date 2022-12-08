@@ -9,7 +9,7 @@ package com.salesforce.mce.spade.aws
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-case class SpadeAwsContext(emr: SpadeAwsContext.Emr)
+case class SpadeAwsContext(emr: SpadeAwsContext.Emr, tags: Map[String, String])
 
 object SpadeAwsContext {
 
@@ -22,7 +22,7 @@ object SpadeAwsContext {
     slaveInstanceType: String,
     serviceRole: String,
     resourceRole: String,
-    tags: Seq[(String, String)]
+    tags: Map[String, String]
   )
 
   object Emr {
@@ -40,7 +40,7 @@ object SpadeAwsContext {
         config.getString("slave-instance-type"),
         config.getString("service-role"),
         config.getString("resource-role"),
-        Seq.empty
+        Map.empty
       )
     }
 
@@ -52,7 +52,7 @@ object SpadeAwsContext {
   def withRootConfig(rootConfig: Config): SpadeAwsContext = {
     val config = rootConfig.getConfig(configPath)
     val emr = Emr.withRootConfig(config)
-    SpadeAwsContext(emr)
+    SpadeAwsContext(emr, Map.empty)
   }
 
   def apply(): SpadeAwsContext = withRootConfig(ConfigFactory.load())

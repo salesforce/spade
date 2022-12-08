@@ -29,6 +29,8 @@ object EmrCluster {
     nameOpt: Option[String],
     applications: Seq[String],
     instanceCountOpt: Option[Int],
+    masterInstanceType: Option[String],
+    slaveInstanceType: Option[String],
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
     bootstrapActions: Seq[BootstrapAction],
@@ -41,6 +43,10 @@ object EmrCluster {
     def withApplication(application: String) = copy(applications = applications :+ application)
 
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
+
+    def withMasterInstanceType(instType: String) = copy(masterInstanceType = Option(instType))
+
+    def withSlaveInstanceType(instType: String) = copy(slaveInstanceType = Option(instType))
 
     def withAdditionalMasterSecurityGroupIds(groupIds: String*) =
       copy(additionalMasterSecurityGroupIds = additionalMasterSecurityGroupIds ++ groupIds)
@@ -71,15 +77,15 @@ object EmrCluster {
           applications,
           sac.emr.serviceRole,
           sac.emr.resourceRole,
-          Option(sac.emr.tags.map { case (k, v) => AwsTag(k, v) }),
+          Option((sac.tags.toSeq ++ sac.emr.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           configurations.map(_.asSpec()).asOption(),
           EmrResourceSpec.InstancesConfig(
             sac.emr.subnetId,
             sac.emr.ec2KeyName,
             instanceCount,
-            sac.emr.masterInstanceType,
-            sac.emr.slaveInstanceType,
+            masterInstanceType.getOrElse(sac.emr.masterInstanceType),
+            slaveInstanceType.getOrElse(sac.emr.slaveInstanceType),
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption()
           )
@@ -90,6 +96,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder =
-    Builder(None, Seq.empty, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None)
+    Builder(None, Seq.empty, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None)
 
 }
