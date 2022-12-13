@@ -7,9 +7,9 @@
 
 package com.salesforce.mce.spade.aws
 
-import scala.util.Try
-
 import com.typesafe.config.{Config, ConfigFactory}
+
+import com.salesforce.mce.spade.SpadeContext.optionIfMissing
 
 case class SpadeAwsContext(
   emr: SpadeAwsContext.Emr,
@@ -40,7 +40,7 @@ object SpadeAwsContext {
       Emr(
         config.getString("release-label"),
         config.getString("subnet-id"),
-        Try(config.getString("ec2-keyname")).toOption,
+        optionIfMissing(config.getString("ec2-keyname")),
         config.getInt("instance-count"),
         config.getString("master-instance-type"),
         config.getString("slave-instance-type"),

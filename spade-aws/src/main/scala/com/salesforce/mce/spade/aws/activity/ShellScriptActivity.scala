@@ -2,7 +2,8 @@ package com.salesforce.mce.spade.aws.activity
 
 import java.util.UUID
 import io.circe.syntax._
-import com.salesforce.mce.spade.aws.resource.Ec2Cluster
+
+import com.salesforce.mce.spade.aws.resource.Ec2Instance
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
 import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.aws.spec.ShellScriptActivitySpec
@@ -17,7 +18,7 @@ object ShellScriptActivity {
     args: Seq[String],
     outputS3BucketName: String,
     outputS3KeyPrefix: String,
-    runsOn: Resource[Ec2Cluster],
+    runsOn: Resource[Ec2Instance],
     executionTimeout: Option[Int],
     deliveryTimeout: Option[Int],
     maxAttempt: Option[Int]
@@ -32,7 +33,7 @@ object ShellScriptActivity {
     def withDeliveryTimeout(timeout: Int) = copy(deliveryTimeout = Option(timeout))
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
-    def build()(implicit ctx: SpadeContext): Activity[Ec2Cluster] = {
+    def build()(implicit ctx: SpadeContext): Activity[Ec2Instance] = {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"ShellScriptActivity-$id")
@@ -57,10 +58,10 @@ object ShellScriptActivity {
   }
 
   def builder(
-    ec2Cluster: Resource[Ec2Cluster],
+    ec2Instance: Resource[Ec2Instance],
     scriptLocation: String,
     outputS3BucketName: String,
     outputS3KeyPrefix: String
   ) =
-    Builder(None, scriptLocation, Seq.empty, outputS3BucketName, outputS3KeyPrefix, ec2Cluster, None, None, None)
+    Builder(None, scriptLocation, Seq.empty, outputS3BucketName, outputS3KeyPrefix, ec2Instance, None, None, None)
 }

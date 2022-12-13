@@ -9,9 +9,9 @@ import com.salesforce.mce.spade.aws.SpadeAwsContext
 import com.salesforce.mce.spade.aws.spec.{AwsTag, Ec2ResourceSpec}
 import com.salesforce.mce.spade.workflow.Resource
 
-trait Ec2Cluster
+trait Ec2Instance
 
-object Ec2Cluster {
+object Ec2Instance {
 
   final val ResourceType = "aws.resource.Ec2Resource"
 
@@ -33,12 +33,12 @@ object Ec2Cluster {
 
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
-    def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Cluster] = {
+    def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Instance] = {
 
       val id = UUID.randomUUID().toString()
-      val name = nameOpt.getOrElse(s"Ec2Cluster-$id")
+      val name = nameOpt.getOrElse(s"Ec2Instance-$id")
 
-      Resource[Ec2Cluster](
+      Resource[Ec2Instance](
         id,
         name,
         ResourceType,
@@ -56,7 +56,7 @@ object Ec2Cluster {
     }
   }
 
-  def builder(): Ec2Cluster.Builder =
+  def builder(): Ec2Instance.Builder =
     Builder(None, None, None, None, None)
 
 }
