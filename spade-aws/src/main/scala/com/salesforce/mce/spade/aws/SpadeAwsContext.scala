@@ -7,16 +7,22 @@
 
 package com.salesforce.mce.spade.aws
 
+import scala.util.Try
+
 import com.typesafe.config.{Config, ConfigFactory}
 
-case class SpadeAwsContext(emr: SpadeAwsContext.Emr, tags: Map[String, String])
+case class SpadeAwsContext(
+  emr: SpadeAwsContext.Emr,
+  ec2: SpadeAwsContext.Ec2,
+  tags: Map[String, String]
+)
 
 object SpadeAwsContext {
 
   case class Emr(
     releaseLabel: String,
     subnetId: String,
-    ec2KeyName: String,
+    ec2KeyName: Option[String],
     instanceCount: Int,
     masterInstanceType: String,
     slaveInstanceType: String,
@@ -34,7 +40,7 @@ object SpadeAwsContext {
       Emr(
         config.getString("release-label"),
         config.getString("subnet-id"),
-        config.getString("ec2-keyname"),
+        Try(config.getString("ec2-keyname")).toOption,
         config.getInt("instance-count"),
         config.getString("master-instance-type"),
         config.getString("slave-instance-type"),
@@ -47,12 +53,41 @@ object SpadeAwsContext {
     def apply(): Emr = withRootConfig(ConfigFactory.load())
   }
 
+  case class Ec2(
+    amiImageId: String,
+    subnetId: String,
+    instanceType: String,
+    instanceProfile: String,
+    spotInstance: Boolean,
+    tags: Map[String, String]
+  )
+
+  object Ec2 {
+    def configPath = "ec2"
+
+    def withRootConfig(rootConfig: Config): Ec2 = {
+      val config = rootConfig.getConfig(configPath)
+
+      Ec2(
+        config.getString("ami-image-id"),
+        config.getString("subnet-id"),
+        config.getString("instance-type"),
+        config.getString("instance-profile"),
+        config.getBoolean("spot-instance"),
+        Map.empty
+      )
+    }
+
+    def apply(): Ec2 = withRootConfig(ConfigFactory.load())
+  }
+
   def configPath = "com.salesforce.mce.spade.aws"
 
   def withRootConfig(rootConfig: Config): SpadeAwsContext = {
     val config = rootConfig.getConfig(configPath)
     val emr = Emr.withRootConfig(config)
-    SpadeAwsContext(emr, Map.empty)
+    val ec2 = Ec2.withRootConfig(config)
+    SpadeAwsContext(emr, ec2, Map.empty)
   }
 
   def apply(): SpadeAwsContext = withRootConfig(ConfigFactory.load())

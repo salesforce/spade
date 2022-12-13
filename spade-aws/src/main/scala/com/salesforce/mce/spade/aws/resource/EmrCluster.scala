@@ -82,10 +82,10 @@ object EmrCluster {
           configurations.map(_.asSpec()).asOption(),
           EmrResourceSpec.InstancesConfig(
             sac.emr.subnetId,
-            sac.emr.ec2KeyName,
             instanceCount,
             masterInstanceType.getOrElse(sac.emr.masterInstanceType),
             slaveInstanceType.getOrElse(sac.emr.slaveInstanceType),
+            sac.emr.ec2KeyName,
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption()
           )
