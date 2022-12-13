@@ -20,6 +20,6 @@ object ExampleWorkflow extends SpadePipeline with SpadeCli {
   val act3 = ShellScriptActivity.builder(ec2Instance, "s3://somebucket/script.sh").build()
   val act4 = ShellCommandActivity.builder(ec2Instance).withLines("hello").build()
 
-  override def workflow: WorkflowExpression = act1 ~> act2 ~> act3
+  override def workflow: WorkflowExpression = act1 ~> act2 ~> act3 ~> act4
 
 }
