@@ -13,6 +13,7 @@ case class SpadeContext(
   maxAttempt: Int,
   deliveryTimeout: Int,
   executionTimeout: Int,
+  logUri: String,
   orchardHost: String,
   apiKey: Option[String]
 )
@@ -33,6 +34,7 @@ object SpadeContext {
       config.getInt("max-attempt"),
       config.getInt("delivery-timeout"),
       config.getInt("execution-timeout"),
+      config.getString("log-uri"),
       config.getString("orchard.host"),
       optionIfMissing(config.getString("orchard.api-key"))
     )
