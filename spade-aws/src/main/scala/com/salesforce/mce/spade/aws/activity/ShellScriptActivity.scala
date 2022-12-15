@@ -7,7 +7,6 @@ import com.salesforce.mce.spade.aws.resource.Ec2Instance
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
 import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.aws.spec.ShellScriptActivitySpec
-import com.salesforce.mce.spade.aws.util.S3Uri
 
 object ShellScriptActivity {
 
@@ -36,7 +35,6 @@ object ShellScriptActivity {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"ShellScriptActivity-$id")
-      val outputS3Uri = S3Uri(outputUri.getOrElse(ctx.logUri))
 
       Activity(
         id,
@@ -45,10 +43,9 @@ object ShellScriptActivity {
         ShellScriptActivitySpec(
           scriptLocation,
           args,
-          outputS3Uri.bucket,
-          outputS3Uri.path,
-          executionTimeout.getOrElse(ctx.executionTimeout),
-          deliveryTimeout.getOrElse(ctx.deliveryTimeout)
+          outputUri,
+          executionTimeout,
+          deliveryTimeout
         ).asJson,
         runsOn,
         maxAttempt.getOrElse(ctx.maxAttempt)

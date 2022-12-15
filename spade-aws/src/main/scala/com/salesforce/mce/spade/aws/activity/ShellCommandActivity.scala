@@ -2,11 +2,11 @@ package com.salesforce.mce.spade.aws.activity
 
 import java.util.UUID
 import io.circe.syntax._
+
 import com.salesforce.mce.spade.aws.resource.Ec2Instance
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
 import com.salesforce.mce.spade.SpadeContext
 import com.salesforce.mce.spade.aws.spec.ShellCommandActivitySpec
-import com.salesforce.mce.spade.aws.util.S3Uri
 
 object ShellCommandActivity {
 
@@ -33,7 +33,6 @@ object ShellCommandActivity {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"ShellCommandActivity-$id")
-      val outputS3Uri = S3Uri(outputUri.getOrElse(ctx.logUri))
 
       Activity(
         id,
@@ -41,10 +40,9 @@ object ShellCommandActivity {
         ActivityType,
         ShellCommandActivitySpec(
           lines,
-          outputS3Uri.bucket,
-          outputS3Uri.path,
-          executionTimeout.getOrElse(ctx.executionTimeout),
-          deliveryTimeout.getOrElse(ctx.deliveryTimeout)
+          outputUri,
+          executionTimeout,
+          deliveryTimeout
         ).asJson,
         runsOn,
         maxAttempt.getOrElse(ctx.maxAttempt)
