@@ -6,16 +6,15 @@ import io.circe.syntax._
 import com.salesforce.mce.spade.aws.resource.Ec2Instance
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
 import com.salesforce.mce.spade.SpadeContext
-import com.salesforce.mce.spade.aws.spec.ShellScriptActivitySpec
+import com.salesforce.mce.spade.aws.spec.ShellCommandActivitySpec
 
-object ShellScriptActivity {
+object ShellCommandActivity {
 
-  final val ActivityType = "aws.activity.ShellScriptActivity"
+  final val ActivityType = "aws.activity.ShellCommandActivity"
 
   case class Builder(
     nameOpt: Option[String],
-    scriptLocation: String,
-    args: Seq[String],
+    lines: Seq[String],
     outputUri: Option[String],
     runsOn: Resource[Ec2Instance],
     executionTimeout: Option[Int],
@@ -24,8 +23,7 @@ object ShellScriptActivity {
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
-    def withScriptLocation(location: String) = copy(scriptLocation = location)
-    def withArgs(arguments: String*) = copy(args = arguments)
+    def withLines(args: String*) = copy(lines = args)
     def withOutputUri(uri: String) = copy(outputUri = Option(uri))
     def withExecutionTimeout(timeout: Int) = copy(executionTimeout = Option(timeout))
     def withDeliveryTimeout(timeout: Int) = copy(deliveryTimeout = Option(timeout))
@@ -34,15 +32,14 @@ object ShellScriptActivity {
     def build()(implicit ctx: SpadeContext): Activity[Ec2Instance] = {
 
       val id = UUID.randomUUID().toString()
-      val name = nameOpt.getOrElse(s"ShellScriptActivity-$id")
+      val name = nameOpt.getOrElse(s"ShellCommandActivity-$id")
 
       Activity(
         id,
         name,
         ActivityType,
-        ShellScriptActivitySpec(
-          scriptLocation,
-          args,
+        ShellCommandActivitySpec(
+          lines,
           outputUri,
           executionTimeout,
           deliveryTimeout
@@ -54,6 +51,6 @@ object ShellScriptActivity {
 
   }
 
-  def builder(ec2Instance: Resource[Ec2Instance], scriptLocation: String) =
-    Builder(None, scriptLocation, Seq.empty, None, ec2Instance, None, None, None)
+  def builder(ec2Instance: Resource[Ec2Instance]) =
+    Builder(None, Seq.empty, None, ec2Instance, None, None, None)
 }

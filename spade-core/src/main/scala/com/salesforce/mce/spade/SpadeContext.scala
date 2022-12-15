@@ -11,8 +11,6 @@ import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 
 case class SpadeContext(
   maxAttempt: Int,
-  deliveryTimeout: Int,
-  executionTimeout: Int,
   orchardHost: String,
   apiKey: Option[String]
 )
@@ -31,8 +29,6 @@ object SpadeContext {
     val config = rootConfig.getConfig(configPath)
     SpadeContext(
       config.getInt("max-attempt"),
-      config.getInt("delivery-timeout"),
-      config.getInt("execution-timeout"),
       config.getString("orchard.host"),
       optionIfMissing(config.getString("orchard.api-key"))
     )

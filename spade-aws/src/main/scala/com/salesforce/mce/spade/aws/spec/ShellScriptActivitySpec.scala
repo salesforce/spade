@@ -6,10 +6,9 @@ import io.circe.generic.semiauto._
 case class ShellScriptActivitySpec(
   scriptLocation: String,
   args: Seq[String],
-  outputS3BucketName: String,
-  outputS3KeyPrefix: String,
-  executionTimeout: Int,
-  deliveryTimeout: Int
+  outputUri: Option[String],
+  executionTimeout: Option[Int],
+  deliveryTimeout: Option[Int]
 )
 
 object ShellScriptActivitySpec {
