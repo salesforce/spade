@@ -11,15 +11,28 @@ class CreateCommand(opt: CliOptions, pipeline: SpadePipeline) {
 
     new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
       .create(pipeline)
-      .foreach { clientForPipeline =>
-        println(clientForPipeline.workflowId)
+      .flatMap { clientForPipeline =>
+        println(s"created workflow: ${clientForPipeline.workflowId}")
 
         if (opt.activate) {
-          clientForPipeline.activate()
+          clientForPipeline
+            .activate()
+            .map { _ =>
+              println("workflow activated")
+              0
+            }
+        } else {
+          Right(0)
         }
-      }
 
-    0
+      } match {
+      case Left(value) =>
+        println(s"Error: $value")
+        1
+      case Right(value) =>
+        value
+    }
+
   }
 
 }
