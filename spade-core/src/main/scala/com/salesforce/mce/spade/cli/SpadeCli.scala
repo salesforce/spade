@@ -73,7 +73,7 @@ trait SpadeCli { self: SpadePipeline =>
               .text("Workflow ID")
           ),
         cmd("cancel")
-          .action((_, c) => c.copy(command = Command.Delete))
+          .action((_, c) => c.copy(command = Command.Cancel))
           .children(
             opt[String]('h', "host")
               .action((x, c) => c.copy(host = x))
@@ -105,7 +105,7 @@ trait SpadeCli { self: SpadePipeline =>
           case Command.Delete =>
             new DeleteCommand(opts).run()
           case Command.Cancel =>
-            new DeleteCommand(opts).run()
+            new CancelCommand(opts).run()
         }
         System.exit(exitStatus)
       case None =>
