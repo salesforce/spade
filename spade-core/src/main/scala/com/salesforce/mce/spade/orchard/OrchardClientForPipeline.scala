@@ -14,6 +14,7 @@ class OrchardClientForPipeline(setting: OrchardClient.Setting, val workflowId: S
           .addPathSegment("v1")
           .addPathSegment("workflow")
           .addPathSegment(workflowId)
+          .addPathSegment("activate")
           .build(),
         None
       )
@@ -31,4 +32,17 @@ class OrchardClientForPipeline(setting: OrchardClient.Setting, val workflowId: S
       )
       .map(_ => new OrchardClient(setting))
 
+  def cancel(): Either[ErrorResponse, OrchardClientForPipeline] =
+    HttpRequest
+      .put[String, Option[Int]](
+        host
+          .newBuilder()
+          .addPathSegment("v1")
+          .addPathSegment("workflow")
+          .addPathSegment(workflowId)
+          .addPathSegment("cancel")
+          .build(),
+        None
+      )
+      .map(_ => this)
 }

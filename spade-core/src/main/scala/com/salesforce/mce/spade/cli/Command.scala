@@ -21,4 +21,6 @@ object Command {
 
   case object Get extends Command
 
+  case object Cancel extends Command
+
 }
