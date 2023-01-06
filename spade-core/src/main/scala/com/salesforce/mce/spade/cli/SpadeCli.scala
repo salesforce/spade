@@ -71,6 +71,20 @@ trait SpadeCli { self: SpadePipeline =>
               .required()
               .action((x, c) => c.copy(workflowId = x))
               .text("Workflow ID")
+          ),
+        cmd("cancel")
+          .action((_, c) => c.copy(command = Command.Cancel))
+          .children(
+            opt[String]('h', "host")
+              .action((x, c) => c.copy(host = x))
+              .text("orchard host name"),
+            opt[String]("api-key")
+              .action((x, c) => c.copy(apiKey = Option(x)))
+              .text("Orchard API key to use"),
+            opt[String]("workflow-id")
+              .required()
+              .action((x, c) => c.copy(workflowId = x))
+              .text("Workflow ID")
           )
       )
     }
@@ -90,6 +104,8 @@ trait SpadeCli { self: SpadePipeline =>
             new ActivateCommand(opts).run()
           case Command.Delete =>
             new DeleteCommand(opts).run()
+          case Command.Cancel =>
+            new CancelCommand(opts).run()
         }
         System.exit(exitStatus)
       case None =>
