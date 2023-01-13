@@ -2,7 +2,7 @@ package com.salesforce.mce.spade.orchard
 
 import okhttp3.HttpUrl
 
-import com.salesforce.mce.spade.SpadePipeline
+import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.telepathy.{ErrorResponse, HttpRequest, TelepathySetting}
 
 object OrchardClient {
@@ -22,15 +22,30 @@ class OrchardClient(setting: OrchardClient.Setting) {
 
   import setting._
 
-  def create(spadePipeline: SpadePipeline): Either[ErrorResponse, OrchardClientForPipeline] =
-    HttpRequest
-      .post[String, WorkflowRequest](
-        host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
-        WorkflowRequest(spadePipeline.name, spadePipeline.workflow)
-      )
-      .map(new OrchardClientForPipeline(setting, _))
+  def create(spadeWorkflowGroup: SpadeWorkflowGroup): (Option[ErrorResponse], Seq[OrchardClientForPipeline]) = {
+    spadeWorkflowGroup.workflows.toSeq
+      .foldLeft(
+        (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
+      ) { case ((error, succeeded), (wfKey, wf)) =>
+        error
+          .fold(
+            HttpRequest
+              .post[String, WorkflowRequest](
+                host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
+                WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
+              )
+              .map { workflowId =>
+                println(s"created workflow: $workflowId")
+                new OrchardClientForPipeline(setting, workflowId)
+              }
+              .fold(e => (Option(e), succeeded), fb => (None, fb +: succeeded))
+          )(_ =>
+            (error, succeeded)
+          )
+      }
+  }
 
-  def forName(pipelineName: String): Either[ErrorResponse, Option[OrchardClientForPipeline]] =
+  def forName(pipelineName: String): Either[ErrorResponse, Seq[OrchardClientForPipeline]] =
     HttpRequest
       .get[List[WorkflowResponse]](
         host
@@ -40,13 +55,8 @@ class OrchardClient(setting: OrchardClient.Setting) {
           .addQueryParameter("like", pipelineName)
           .build()
       )
-      .map {
-        case p :: Nil =>
-          Option(new OrchardClientForPipeline(setting, p.id))
-        case Nil =>
-          None
-        case _ =>
-          throw new Exception("Duplicated pipeline name detected")
+      .map { ps =>
+        ps.map(p => new OrchardClientForPipeline(setting, p.id))
       }
 
 }

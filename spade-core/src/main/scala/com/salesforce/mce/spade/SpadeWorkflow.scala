@@ -7,14 +7,11 @@
 
 package com.salesforce.mce.spade
 
-import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowExpressionImplicits}
+import com.salesforce.mce.spade.workflow.WorkflowExpression
 
-trait SpadePipeline extends WorkflowExpressionImplicits {
-
-  implicit lazy val spadeContext: SpadeContext = SpadeContext()
-
-  def name: String = this.getClass().getCanonicalName().stripSuffix("$")
+trait SpadeWorkflow extends SpadeWorkflowGroup {
 
   def workflow: WorkflowExpression
 
+  final def workflows = Map(EmptyKey -> workflow)
 }

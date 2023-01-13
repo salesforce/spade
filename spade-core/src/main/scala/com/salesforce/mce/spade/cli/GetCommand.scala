@@ -9,8 +9,8 @@ class GetCommand(opt: CliOptions) {
   def run(): Int = {
     new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
       .forName(opt.pipelineName) match {
-        case Right(p) =>
-          println(p)
+        case Right(ps) =>
+          ps.foreach(println)
           0
         case Left(e) =>
           println(e)

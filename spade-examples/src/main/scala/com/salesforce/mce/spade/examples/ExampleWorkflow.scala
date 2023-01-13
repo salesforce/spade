@@ -1,13 +1,13 @@
 package com.salesforce.mce.spade.examples
 
-import com.salesforce.mce.spade.SpadePipeline
+import com.salesforce.mce.spade.SpadeWorkflow
 import com.salesforce.mce.spade.aws.SpadeAwsContext
 import com.salesforce.mce.spade.aws.activity.{EmrActivity, EmrStep, ShellCommandActivity, ShellScriptActivity}
 import com.salesforce.mce.spade.aws.resource.{Ec2Instance, EmrCluster}
 import com.salesforce.mce.spade.cli.SpadeCli
 import com.salesforce.mce.spade.workflow.WorkflowExpression
 
-object ExampleWorkflow extends SpadePipeline with SpadeCli {
+object ExampleWorkflow extends SpadeWorkflow with SpadeCli {
 
   implicit val spadeAwsContext = SpadeAwsContext()
 
