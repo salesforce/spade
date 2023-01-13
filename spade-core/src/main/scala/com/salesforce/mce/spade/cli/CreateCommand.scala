@@ -2,37 +2,55 @@ package com.salesforce.mce.spade.cli
 
 import okhttp3.HttpUrl
 
-import com.salesforce.mce.spade.SpadePipeline
-import com.salesforce.mce.spade.orchard.OrchardClient
+import com.salesforce.mce.spade.SpadeWorkflowGroup
+import com.salesforce.mce.spade.orchard.{OrchardClient, OrchardClientForPipeline}
+import com.salesforce.mce.telepathy.ErrorResponse
 
-class CreateCommand(opt: CliOptions, pipeline: SpadePipeline) {
+class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
 
   def run(): Int = {
 
-    new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
-      .create(pipeline)
-      .flatMap { clientForPipeline =>
-        println(s"created workflow: ${clientForPipeline.workflowId}")
+    val (creationError, createdWorkflows) =
+      new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey)).create(workflowGroup)
 
+    creationError
+      .fold(
         if (opt.activate) {
-          clientForPipeline
-            .activate()
-            .map { _ =>
-              println("workflow activated")
-              0
+          val activation = createdWorkflows
+            .foldLeft(
+              (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
+            ) { case ((error, succeeded), wf) =>
+              error
+                .fold(
+                  wf
+                    .activate()
+                    .fold(
+                      e => (Option(e), succeeded),
+                      fb => {
+                        println(s"workflow ${fb.workflowId} activated")
+                        (None, fb +: succeeded)
+                      }
+                    )
+                )(_ =>
+                  (error, succeeded)
+                )
             }
+          activation match {
+            case (Some(error), activated) =>
+              println(s"Activation Error: $error")
+              activated.foreach(_.cancel())
+              1
+            case _ =>
+              0
+          }
         } else {
-          Right(0)
+          0
         }
-
-      } match {
-      case Left(value) =>
-        println(s"Error: $value")
+      ) { err =>
+        println(s"Creation Error: $err")
+        createdWorkflows.foreach(_.delete())
         1
-      case Right(value) =>
-        value
-    }
-
+      }
   }
 
 }
