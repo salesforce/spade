@@ -22,8 +22,8 @@ class OrchardClient(setting: OrchardClient.Setting) {
 
   import setting._
 
-  def create(spadeWorkflowGroup: SpadeWorkflowGroup): (Option[ErrorResponse], Seq[OrchardClientForPipeline]) = {
-    spadeWorkflowGroup.workflows.toSeq
+  def create(spadeWorkflowGroup: SpadeWorkflowGroup) = {
+    val created = spadeWorkflowGroup.workflows.toSeq
       .foldLeft(
         (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
       ) { case ((error, succeeded), (wfKey, wf)) =>
@@ -43,6 +43,12 @@ class OrchardClient(setting: OrchardClient.Setting) {
             (error, succeeded)
           )
       }
+    created match {
+      case (Some(error), succeeded) =>
+        Left((error, succeeded))
+      case (None, succeeded) =>
+        Right(succeeded)
+    }
   }
 
   def forName(pipelineName: String): Either[ErrorResponse, Seq[OrchardClientForPipeline]] =

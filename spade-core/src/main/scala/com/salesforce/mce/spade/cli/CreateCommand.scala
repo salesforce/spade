@@ -10,47 +10,48 @@ class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
 
   def run(): Int = {
 
-    val (creationError, createdWorkflows) =
-      new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey)).create(workflowGroup)
-
-    creationError
-      .fold(
-        if (opt.activate) {
-          val activation = createdWorkflows
-            .foldLeft(
-              (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
-            ) { case ((error, succeeded), wf) =>
-              error
-                .fold(
-                  wf
-                    .activate()
-                    .fold(
-                      e => (Option(e), succeeded),
-                      fb => {
-                        println(s"workflow ${fb.workflowId} activated")
-                        (None, fb +: succeeded)
-                      }
-                    )
-                )(_ =>
-                  (error, succeeded)
-                )
-            }
-          activation match {
-            case (Some(error), activated) =>
-              println(s"Activation Error: $error")
-              activated.foreach(_.cancel())
-              1
-            case _ =>
-              0
-          }
-        } else {
-          0
+    new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
+      .create(workflowGroup)
+      .fold (
+        error => {
+          println(s"Creation Error: ${error._1}")
+          error._2.foreach(_.delete())
+          1
         }
-      ) { err =>
-        println(s"Creation Error: $err")
-        createdWorkflows.foreach(_.delete())
-        1
-      }
+        ,
+        createdWorkflows =>
+          if (opt.activate) {
+            val activation = createdWorkflows
+              .foldLeft(
+                (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
+              ) { case ((error, succeeded), wf) =>
+                error
+                  .fold(
+                    wf
+                      .activate()
+                      .fold(
+                        e => (Option(e), succeeded),
+                        fb => {
+                          println(s"workflow ${fb.workflowId} activated")
+                          (None, fb +: succeeded)
+                        }
+                      )
+                  )(_ =>
+                    (error, succeeded)
+                  )
+              }
+            activation match {
+              case (Some(error), activated) =>
+                println(s"Activation Error: $error")
+                activated.foreach(_.cancel())
+                1
+              case _ =>
+                0
+            }
+          } else {
+            0
+          }
+      )
   }
 
 }
