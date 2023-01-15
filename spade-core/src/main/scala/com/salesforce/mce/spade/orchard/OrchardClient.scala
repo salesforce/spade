@@ -1,10 +1,11 @@
 package com.salesforce.mce.spade.orchard
 
+import scala.collection.compat.immutable.LazyList
+
 import okhttp3.HttpUrl
+
 import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.telepathy.{ErrorResponse, HttpRequest, TelepathySetting}
-
-import scala.collection.compat.immutable.LazyList
 
 object OrchardClient {
 
@@ -23,32 +24,30 @@ class OrchardClient(setting: OrchardClient.Setting) {
 
   import setting._
 
+  type Output =
+    Either[(ErrorResponse, Seq[OrchardClientForPipeline]), Seq[OrchardClientForPipeline]]
+
   def create(spadeWorkflowGroup: SpadeWorkflowGroup) = {
-    val created = spadeWorkflowGroup.workflows.toSeq
-      .foldLeft(
-        (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
-      ) { case ((error, succeeded), (wfKey, wf)) =>
-        error
-          .fold(
-            HttpRequest
-              .post[String, WorkflowRequest](
-                host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
-                WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
-              )
-              .map { workflowId =>
-                new OrchardClientForPipeline(setting, workflowId)
-              }
-              .fold(e => (Option(e), succeeded), fb => (None, fb +: succeeded))
-          )(_ =>
-            (error, succeeded)
+    spadeWorkflowGroup.workflows.toSeq
+      .to(LazyList)
+      .map { case (wfKey, wf) =>
+        HttpRequest
+          .post[String, WorkflowRequest](
+            host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
+            WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
           )
+          .map { workflowId =>
+            new OrchardClientForPipeline(setting, workflowId)
+          }
       }
-    created match {
-      case (Some(error), succeeded) =>
-        Left((error, succeeded))
-      case (None, succeeded) =>
-        Right(succeeded)
-    }
+      .lazyFold[Output](Right(Seq.empty)) {
+        case (Right(xs), Right(x)) =>
+          Right(xs :+ x) -> true
+        case (Right(xs), Left(e)) =>
+          Left((e, xs)) -> false
+        case other =>
+          throw new MatchError(other.toString())
+      }
   }
 
   def forName(pipelineName: String): Either[ErrorResponse, Seq[OrchardClientForPipeline]] =
