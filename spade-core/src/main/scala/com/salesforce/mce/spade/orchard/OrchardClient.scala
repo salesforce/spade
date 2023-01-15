@@ -27,28 +27,26 @@ class OrchardClient(setting: OrchardClient.Setting) {
   type Output =
     Either[(ErrorResponse, Seq[OrchardClientForPipeline]), Seq[OrchardClientForPipeline]]
 
-  def create(spadeWorkflowGroup: SpadeWorkflowGroup) = {
-    spadeWorkflowGroup.workflows.toSeq
-      .to(LazyList)
-      .map { case (wfKey, wf) =>
-        HttpRequest
-          .post[String, WorkflowRequest](
-            host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
-            WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
-          )
-          .map { workflowId =>
-            new OrchardClientForPipeline(setting, workflowId)
-          }
-      }
-      .lazyFold[Output](Right(Seq.empty)) {
-        case (Right(xs), Right(x)) =>
-          Right(xs :+ x) -> true
-        case (Right(xs), Left(e)) =>
-          Left((e, xs)) -> false
-        case other =>
-          throw new MatchError(other.toString())
-      }
-  }
+  def create(spadeWorkflowGroup: SpadeWorkflowGroup) = spadeWorkflowGroup.workflows.toSeq
+    .to(LazyList)
+    .map { case (wfKey, wf) =>
+      HttpRequest
+        .post[String, WorkflowRequest](
+          host.newBuilder().addPathSegment("v1").addPathSegment("workflow").build(),
+          WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
+        )
+        .map { workflowId =>
+          new OrchardClientForPipeline(setting, workflowId)
+        }
+    }
+    .lazyFold[Output](Right(Seq.empty)) {
+      case (Right(xs), Right(x)) =>
+        Right(xs :+ x) -> true
+      case (Right(xs), Left(e)) =>
+        Left((e, xs)) -> false
+      case other =>
+        throw new MatchError(other.toString())
+    }
 
   def forName(pipelineName: String): Either[ErrorResponse, Seq[OrchardClientForPipeline]] =
     HttpRequest
