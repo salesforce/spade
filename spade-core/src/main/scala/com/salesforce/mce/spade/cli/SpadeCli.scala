@@ -11,9 +11,9 @@ import io.circe.syntax._
 import scopt.OParser
 
 import com.salesforce.mce.spade.orchard.WorkflowRequest
-import com.salesforce.mce.spade.{BuildInfo, SpadePipeline}
+import com.salesforce.mce.spade.{BuildInfo, SpadeWorkflowGroup}
 
-trait SpadeCli { self: SpadePipeline =>
+trait SpadeCli { self: SpadeWorkflowGroup =>
 
   def main(args: Array[String]): Unit = {
     val builder = OParser.builder[CliOptions]
@@ -93,8 +93,13 @@ trait SpadeCli { self: SpadePipeline =>
       case Some(opts) =>
         val exitStatus = opts.command match {
           case Command.Generate =>
-            val request = WorkflowRequest(self.name, self.workflow)
-            println(request.asJson)
+            for {
+              (workflowKey, workflow) <- self.workflows
+            } yield {
+              val request = WorkflowRequest(self.name, workflow)
+              println(workflowKey)
+              println(request.asJson)
+            }
             0
           case Command.Get =>
             new GetCommand(opts).run()
