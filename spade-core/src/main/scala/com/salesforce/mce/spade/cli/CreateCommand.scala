@@ -25,6 +25,7 @@ class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
               .foldLeft(
                 (Option.empty[ErrorResponse], Seq.empty[OrchardClientForPipeline])
               ) { case ((error, succeeded), wf) =>
+                println(s"created workflow: ${wf.workflowId}")
                 error
                   .fold(
                     wf

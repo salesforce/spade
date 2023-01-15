@@ -1,9 +1,10 @@
 package com.salesforce.mce.spade.orchard
 
 import okhttp3.HttpUrl
-
 import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.telepathy.{ErrorResponse, HttpRequest, TelepathySetting}
+
+import scala.collection.compat.immutable.LazyList
 
 object OrchardClient {
 
@@ -35,7 +36,6 @@ class OrchardClient(setting: OrchardClient.Setting) {
                 WorkflowRequest(spadeWorkflowGroup.nameForKey(wfKey), wf)
               )
               .map { workflowId =>
-                println(s"created workflow: $workflowId")
                 new OrchardClientForPipeline(setting, workflowId)
               }
               .fold(e => (Option(e), succeeded), fb => (None, fb +: succeeded))
@@ -58,7 +58,7 @@ class OrchardClient(setting: OrchardClient.Setting) {
           .newBuilder()
           .addPathSegments("v1")
           .addPathSegment("workflows")
-          .addQueryParameter("like", pipelineName)
+          .addQueryParameter("like", s"${pipelineName}#%")
           .build()
       )
       .map { ps =>
