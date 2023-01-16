@@ -15,7 +15,8 @@ case class CliOptions(
   apiKey: Option[String],
   workflowId: String,
   pipelineName: String,
-  activate: Boolean
+  activate: Boolean,
+  compact: Boolean
 )
 
 object CliOptions {
@@ -26,7 +27,8 @@ object CliOptions {
     host = spadeCtx.orchardHost,
     workflowId = "",
     pipelineName = "",
-    activate = false
+    activate = false,
+    compact = false
   )
 
 }

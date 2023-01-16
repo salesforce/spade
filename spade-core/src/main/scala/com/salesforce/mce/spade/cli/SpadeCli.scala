@@ -25,7 +25,12 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
         head("spade-cli", BuildInfo.version),
         help("help").text("prints this usage text"),
         cmd("generate")
-          .action((_, c) => c.copy(command = Command.Generate)),
+          .action((_, c) => c.copy(command = Command.Generate))
+          .children(
+            opt[Unit]("compact")
+              .action((_, c) => c.copy(compact = true))
+              .text("If specified, the workflow json will be unindented.")
+          ),
         cmd("get")
           .action((_, c) => c.copy(command = Command.Get))
           .children(
@@ -98,7 +103,11 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
             } yield {
               val request = WorkflowRequest(self.name, workflow)
               println(workflowKey)
-              println(request.asJson)
+              if (opts.compact) {
+                println(request.asJson.noSpaces)
+              } else {
+                println(request.asJson)
+              }
             }
             0
           case Command.Get =>
