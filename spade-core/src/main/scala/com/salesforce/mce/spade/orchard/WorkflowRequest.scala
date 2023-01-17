@@ -8,8 +8,10 @@
 package com.salesforce.mce.spade.orchard
 
 import scala.collection.compat._
+
 import io.circe.generic.semiauto._
 import io.circe.{Decoder, Encoder, Json}
+
 import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowGraph}
 
 case class WorkflowRequest(
