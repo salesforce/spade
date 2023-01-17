@@ -1,5 +1,6 @@
 package com.salesforce.mce.spade.aws.resource
 
+import java.time.Duration
 import java.util.UUID
 
 import io.circe.syntax._
@@ -23,7 +24,7 @@ object Ec2Instance {
     securityGroupIds: Option[Seq[String]],
     spotInstance: Option[Boolean],
     maxAttempt: Option[Int],
-    terminateAfter: Option[Double]
+    terminateAfter: Option[Duration]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -34,7 +35,7 @@ object Ec2Instance {
 
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
-    def withTerminateAfter(hours: Double) = copy(terminateAfter = Option(hours))
+    def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Instance] = {
 

@@ -7,6 +7,8 @@
 
 package com.salesforce.mce.spade.workflow
 
+import java.time.Duration
+
 import io.circe.Json
 
 case class Resource[+R](
@@ -15,5 +17,5 @@ case class Resource[+R](
   resourceType: String,
   resourceSpec: Json,
   maxAttempt: Int,
-  terminateAfter: Option[Double]
+  terminateAfter: Option[Duration]
 )
