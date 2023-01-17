@@ -8,11 +8,11 @@
 package com.salesforce.mce.spade.orchard
 
 import scala.collection.compat._
-
 import io.circe.generic.semiauto._
 import io.circe.{Decoder, Encoder, Json}
-
 import com.salesforce.mce.spade.workflow.{WorkflowExpression, WorkflowGraph}
+
+import java.time.Duration
 
 case class WorkflowRequest(
   name: String,
@@ -75,7 +75,7 @@ object WorkflowRequest {
           r.resourceType,
           r.resourceSpec,
           r.maxAttempt,
-          r.terminateAfter.map(_.toHours.toDouble)
+          r.terminateAfter.map(_.toMinutes / 60D)
         )
       }
       .distinct
