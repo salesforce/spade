@@ -19,7 +19,8 @@ case class WorkflowRequest(
   activities: Seq[WorkflowRequest.Activity],
   resources: Seq[WorkflowRequest.Resource],
   // key depends on values
-  dependencies: Map[String, Seq[String]]
+  dependencies: Map[String, Seq[String]],
+  actions: Seq[WorkflowRequest.Action]
 )
 
 object WorkflowRequest {
@@ -42,11 +43,23 @@ object WorkflowRequest {
     activityType: String,
     activitySpec: Json,
     resourceId: String,
-    maxAttempt: Int
+    maxAttempt: Int,
+    onSuccess: Option[Seq[String]],
+    onFailure: Option[Seq[String]]
   )
 
   implicit val activityEncoder: Encoder[Activity] = deriveEncoder
   implicit val activityDecoder: Decoder[Activity] = deriveDecoder
+
+  case class Action(
+    id: String,
+    name: String,
+    actionType: String,
+    actionSpec: Json
+  )
+
+  implicit val actionEncoder: Encoder[Action] = deriveEncoder
+  implicit val actionDecoder: Decoder[Action] = deriveDecoder
 
   implicit val encoder: Encoder[WorkflowRequest] = deriveEncoder[WorkflowRequest]
   implicit val decoder: Decoder[WorkflowRequest] = deriveDecoder[WorkflowRequest]
@@ -61,7 +74,9 @@ object WorkflowRequest {
         act.activityType,
         act.activitySpec,
         act.runsOn.id,
-        act.maxAttempt
+        act.maxAttempt,
+        act.onSuccess.map(_.map(_.id)),
+        act.onFail.map(_.map(_.id))
       )
     }.toSeq
 
@@ -82,6 +97,21 @@ object WorkflowRequest {
 
     val dependencies = graph.flows.map(_.swap).groupMap(_._1)(_._2).view.mapValues(_.toSeq).toMap
 
-    WorkflowRequest(name, activities, resources, dependencies)
+    val actions = graph.activities.values
+      .flatMap { act =>
+        (act.onSuccess ++ act.onFail).flatten
+          .map(a =>
+            Action(
+              a.id,
+              a.name,
+              a.actionType,
+              a.actionSpec
+            )
+          )
+      }
+      .toSet
+      .toSeq
+
+    WorkflowRequest(name, activities, resources, dependencies, actions)
   }
 }
