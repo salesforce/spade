@@ -1,5 +1,6 @@
 package com.salesforce.mce.spade.aws.resource
 
+import java.time.Duration
 import java.util.UUID
 
 import io.circe.syntax._
@@ -22,7 +23,8 @@ object Ec2Instance {
     instanceType: Option[String],
     securityGroupIds: Option[Seq[String]],
     spotInstance: Option[Boolean],
-    maxAttempt: Option[Int]
+    maxAttempt: Option[Int],
+    terminateAfter: Option[Duration]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -32,6 +34,8 @@ object Ec2Instance {
     def withSecurityGroupIds(groupIds: String*) = copy(securityGroupIds = Option(groupIds))
 
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
+
+    def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Instance] = {
 
@@ -51,12 +55,13 @@ object Ec2Instance {
           Option((sac.tags.toSeq ++ sac.ec2.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
           spotInstance.getOrElse(sac.ec2.spotInstance)
         ).asJson,
-        maxAttempt.getOrElse(ctx.maxAttempt)
+        maxAttempt.getOrElse(ctx.maxAttempt),
+        terminateAfter
       )
     }
   }
 
   def builder(): Ec2Instance.Builder =
-    Builder(None, None, None, None, None)
+    Builder(None, None, None, None, None, None)
 
 }

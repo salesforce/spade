@@ -29,7 +29,8 @@ object WorkflowRequest {
     name: String,
     resourceType: String,
     resourceSpec: Json,
-    maxAttempt: Int
+    maxAttempt: Int,
+    terminateAfter: Option[Double]
   )
 
   implicit val resourceEncoder: Encoder[Resource] = deriveEncoder
@@ -73,7 +74,8 @@ object WorkflowRequest {
           r.name,
           r.resourceType,
           r.resourceSpec,
-          r.maxAttempt
+          r.maxAttempt,
+          r.terminateAfter.map(_.toMinutes / 60D)
         )
       }
       .distinct

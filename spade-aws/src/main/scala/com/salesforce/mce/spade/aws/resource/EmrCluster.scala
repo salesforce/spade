@@ -7,6 +7,7 @@
 
 package com.salesforce.mce.spade.aws.resource
 
+import java.time.Duration
 import java.util.UUID
 
 import io.circe.syntax._
@@ -35,7 +36,8 @@ object EmrCluster {
     additionalSlaveSecurityGroupIds: Seq[String],
     bootstrapActions: Seq[BootstrapAction],
     configurations: Seq[EmrConfiguration],
-    maxAttempt: Option[Int]
+    maxAttempt: Option[Int],
+    terminateAfter: Option[Duration]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -61,6 +63,8 @@ object EmrCluster {
       copy(configurations = configurations ++ cs)
 
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
+
+    def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
@@ -90,12 +94,13 @@ object EmrCluster {
             additionalSlaveSecurityGroupIds.asOption()
           )
         ).asJson,
-        maxAttempt.getOrElse(ctx.maxAttempt)
+        maxAttempt.getOrElse(ctx.maxAttempt),
+        terminateAfter
       )
     }
   }
 
   def builder(): EmrCluster.Builder =
-    Builder(None, Seq.empty, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None)
+    Builder(None, Seq.empty, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None)
 
 }
