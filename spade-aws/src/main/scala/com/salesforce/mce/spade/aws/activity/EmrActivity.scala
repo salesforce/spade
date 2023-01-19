@@ -15,6 +15,7 @@ import com.salesforce.mce.spade.aws.resource.EmrCluster
 import com.salesforce.mce.spade.aws.spec.EmrActivitySpec
 import com.salesforce.mce.spade.workflow.{Activity, Resource}
 import com.salesforce.mce.spade.SpadeContext
+import com.salesforce.mce.spade.aws.activity.WithAlarms.AlarmFields
 
 trait EmrActivity
 
@@ -26,12 +27,16 @@ object EmrActivity {
     nameOpt: Option[String],
     steps: Seq[EmrStep],
     runsOn: Resource[EmrCluster],
-    maxAttempt: Option[Int]
-  ) {
+    maxAttempt: Option[Int],
+    alarmFields: AlarmFields
+  ) extends WithAlarms {
+
+    type Self = Builder
 
     def withName(name: String) = copy(nameOpt = Option(name))
     def withSteps(moreSteps: EmrStep*) = copy(steps = steps ++ moreSteps)
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
+    def updateAlarmFields(fields: AlarmFields) = copy(alarmFields = fields)
 
     def build()(implicit ctx: SpadeContext): Activity[EmrCluster] = {
 
@@ -44,11 +49,12 @@ object EmrActivity {
         ActivityType,
         EmrActivitySpec(steps.map(_.asSpec())).asJson,
         runsOn,
-        maxAttempt.getOrElse(ctx.maxAttempt)
+        maxAttempt.getOrElse(ctx.maxAttempt),
+        alarmFields.onSuccessActions,
+        alarmFields.onFailActions
       )
     }
-
   }
 
-  def builder(emrCluster: Resource[EmrCluster]) = Builder(None, Seq.empty, emrCluster, None)
+  def builder(emrCluster: Resource[EmrCluster]) = Builder(None, Seq.empty, emrCluster, None, AlarmFields())
 }
