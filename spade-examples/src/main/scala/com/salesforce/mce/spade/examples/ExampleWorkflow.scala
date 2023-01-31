@@ -3,8 +3,18 @@ package com.salesforce.mce.spade.examples
 import com.salesforce.mce.spade.SpadeWorkflow
 import com.salesforce.mce.spade.aws.SpadeAwsContext
 import com.salesforce.mce.spade.aws.action.SnsAlarm
-import com.salesforce.mce.spade.aws.activity.{EmrActivity, EmrStep, ShellCommandActivity, ShellScriptActivity}
-import com.salesforce.mce.spade.aws.resource.{Ec2Instance, EmrCluster}
+import com.salesforce.mce.spade.aws.activity.{
+  DummyActivity,
+  EmrActivity,
+  EmrStep,
+  ShellCommandActivity,
+  ShellScriptActivity
+}
+import com.salesforce.mce.spade.aws.resource.{
+  DummyResource,
+  Ec2Instance,
+  EmrCluster
+}
 import com.salesforce.mce.spade.cli.SpadeCli
 import com.salesforce.mce.spade.workflow.WorkflowExpression
 
@@ -24,6 +34,9 @@ object ExampleWorkflow extends SpadeWorkflow with SpadeCli {
   val act3 = ShellScriptActivity.builder(ec2Instance, "s3://somebucket/script.sh").onFail(alarm2).build()
   val act4 = ShellCommandActivity.builder(ec2Instance).withLines("hello").onSuccess(alarm1).build()
 
-  override def workflow: WorkflowExpression = act1 ~> act2 ~> act3 ~> act4
+  val dummyResource = DummyResource.builder().build()
+  val dummyAct = DummyActivity.builder(dummyResource).withSleepSeconds(30).onFail(alarm2).build()
+
+  override def workflow: WorkflowExpression = act1 ~> act2 ~> act3 ~> act4 ~> dummyAct
 
 }
