@@ -25,7 +25,7 @@ object SpadeAwsContext {
     ec2KeyName: Option[String],
     instanceCount: Int,
     masterInstanceType: String,
-    slaveInstanceType: String,
+    coreInstanceType: String,
     serviceRole: String,
     resourceRole: String,
     tags: Map[String, String]
@@ -43,7 +43,7 @@ object SpadeAwsContext {
         optionIfMissing(config.getString("ec2-keyname")),
         config.getInt("instance-count"),
         config.getString("master-instance-type"),
-        config.getString("slave-instance-type"),
+        config.getString("core-instance-type"),
         config.getString("service-role"),
         config.getString("resource-role"),
         Map.empty

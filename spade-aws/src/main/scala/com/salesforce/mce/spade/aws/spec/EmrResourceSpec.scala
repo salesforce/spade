@@ -27,7 +27,9 @@ object EmrResourceSpec {
     subnetId: String,
     instanceCount: Int,
     masterInstanceType: String,
-    slaveInstanceType: String,
+    coreInstanceType: String,
+    masterInstanceBidPrice: Option[String],
+    coreInstanceBidPrice: Option[String],
     ec2KeyName: Option[String],
     additionalMasterSecurityGroups: Option[Seq[String]],
     additionalSlaveSecurityGroups: Option[Seq[String]]
