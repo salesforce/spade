@@ -26,12 +26,20 @@ object EmrResourceSpec {
   case class InstancesConfig(
     subnetId: String,
     instanceCount: Int,
-    masterInstanceType: String,
-    slaveInstanceType: String,
     ec2KeyName: Option[String],
+    instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
     additionalMasterSecurityGroups: Option[Seq[String]],
     additionalSlaveSecurityGroups: Option[Seq[String]]
   )
+
+  case class InstanceGroupConfig(
+    instanceRoleType: String,
+    instanceCount: Int,
+    instanceType: String,
+    instanceBidPrice: Option[String]
+  )
+  implicit val igcDecoder: Decoder[InstanceGroupConfig] = deriveDecoder[InstanceGroupConfig]
+  implicit val igcEncoder: Encoder[InstanceGroupConfig] = deriveEncoder[InstanceGroupConfig]
 
   implicit val icDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
   implicit val icEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]

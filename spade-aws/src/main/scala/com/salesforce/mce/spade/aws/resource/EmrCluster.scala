@@ -24,14 +24,23 @@ object EmrCluster {
 
   final val ResourceType = "aws.resource.EmrResource"
 
+  object InstanceRoleType extends Enumeration {
+    final val Master = Value("MASTER")
+    final val Core = Value("CORE")
+    final val Task = Value("TASK")
+  }
+
   case class BootstrapAction(path: String, args: String*)
 
   case class Builder(
     nameOpt: Option[String],
     applications: Seq[String],
+    subnetId: Option[String],
     instanceCountOpt: Option[Int],
     masterInstanceType: Option[String],
-    slaveInstanceType: Option[String],
+    coreInstanceType: Option[String],
+    masterInstanceBidPrice: Option[String],
+    coreInstanceBidPrice: Option[String],
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
     bootstrapActions: Seq[BootstrapAction],
@@ -44,11 +53,17 @@ object EmrCluster {
 
     def withApplication(application: String) = copy(applications = applications :+ application)
 
+    def withSubnetId(subnetId: String) = copy(subnetId = Option(subnetId))
+
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
 
     def withMasterInstanceType(instType: String) = copy(masterInstanceType = Option(instType))
 
-    def withSlaveInstanceType(instType: String) = copy(slaveInstanceType = Option(instType))
+    def withCoreInstanceType(instType: String) = copy(coreInstanceType = Option(instType))
+
+    def withMasterInstanceBidPrice(bidPrice: Double) = copy(masterInstanceBidPrice = Option(s"$bidPrice"))
+
+    def withCoreInstanceBidPrice(bidPrice: Double) = copy(coreInstanceBidPrice = Option(s"$bidPrice"))
 
     def withAdditionalMasterSecurityGroupIds(groupIds: String*) =
       copy(additionalMasterSecurityGroupIds = additionalMasterSecurityGroupIds ++ groupIds)
@@ -71,6 +86,20 @@ object EmrCluster {
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"EmrCluster-$id")
       val instanceCount = instanceCountOpt.getOrElse(sac.emr.instanceCount)
+      val instanceGroupConfigs = Seq(
+        EmrResourceSpec.InstanceGroupConfig(
+          s"${InstanceRoleType.Master}",
+          1,
+          masterInstanceType.getOrElse(sac.emr.masterInstanceType),
+          masterInstanceBidPrice
+        ),
+        EmrResourceSpec.InstanceGroupConfig(
+          s"${InstanceRoleType.Core}",
+          scala.math.max(instanceCount - 1, 1),
+          coreInstanceType.getOrElse(sac.emr.coreInstanceType),
+          coreInstanceBidPrice
+        )
+      )
 
       Resource[EmrCluster](
         id,
@@ -85,11 +114,10 @@ object EmrCluster {
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           configurations.map(_.asSpec()).asOption(),
           EmrResourceSpec.InstancesConfig(
-            sac.emr.subnetId,
+            subnetId.getOrElse(sac.emr.subnetId),
             instanceCount,
-            masterInstanceType.getOrElse(sac.emr.masterInstanceType),
-            slaveInstanceType.getOrElse(sac.emr.slaveInstanceType),
             sac.emr.ec2KeyName,
+            Some(instanceGroupConfigs),
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption()
           )
@@ -100,7 +128,7 @@ object EmrCluster {
     }
   }
 
-  def builder(): EmrCluster.Builder =
-    Builder(None, Seq.empty, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None)
-
+  def builder(): EmrCluster.Builder = Builder(
+    None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None
+  )
 }
