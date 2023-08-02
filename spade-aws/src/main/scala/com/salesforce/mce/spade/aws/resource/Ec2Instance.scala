@@ -52,7 +52,7 @@ object Ec2Instance {
           instanceType.getOrElse(sac.ec2.instanceType),
           sac.ec2.instanceProfile,
           securityGroupIds,
-          Option((sac.tags.toSeq ++ sac.ec2.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
+          Option((sac.tags ++ sac.ec2.tags ++ Map("Name" -> name)).toSeq.map { case (k, v) => AwsTag(k, v) }),
           spotInstance.getOrElse(sac.ec2.spotInstance)
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt),

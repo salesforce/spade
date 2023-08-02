@@ -113,6 +113,7 @@ object EmrCluster {
           Option((sac.tags.toSeq ++ sac.emr.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           configurations.map(_.asSpec()).asOption(),
+          nameOpt,
           EmrResourceSpec.InstancesConfig(
             subnetId.getOrElse(sac.emr.subnetId),
             sac.emr.ec2KeyName,
