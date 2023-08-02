@@ -20,7 +20,7 @@ import com.salesforce.mce.spade.workflow.WorkflowExpression
 
 object ExampleWorkflow extends SpadeWorkflow with SpadeCli {
 
-  implicit val spadeAwsContext = SpadeAwsContext()
+  implicit val spadeAwsContext: SpadeAwsContext = SpadeAwsContext()
 
   val emrCluster = EmrCluster.builder().build()
 
