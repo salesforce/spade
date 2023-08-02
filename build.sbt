@@ -1,5 +1,5 @@
-lazy val scala212 = "2.12.17"
-lazy val scala213 = "2.13.10"
+lazy val scala212 = "2.12.18"
+lazy val scala213 = "2.13.11"
 lazy val supportedScalaVersions = List(scala212, scala213)
 
 val circeVersion = "0.14.2"
@@ -8,7 +8,7 @@ val scalaTestArtifact = "org.scalatest" %% "scalatest" % "3.2.+" % Test
 val telepathyDep = "com.salesforce.mce" %% "telepathy" % "1.5.0"
 val typesafeConfigDep = "com.typesafe" % "config" % "1.4.2"
 val scoptDep = "com.github.scopt" %% "scopt" % "4.1.0"
-val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"
+val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.11.0"
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,

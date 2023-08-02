@@ -25,7 +25,6 @@ object EmrResourceSpec {
 
   case class InstancesConfig(
     subnetId: String,
-    instanceCount: Int,
     ec2KeyName: Option[String],
     instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
     additionalMasterSecurityGroups: Option[Seq[String]],

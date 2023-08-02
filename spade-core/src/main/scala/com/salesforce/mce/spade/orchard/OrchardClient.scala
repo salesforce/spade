@@ -11,7 +11,7 @@ object OrchardClient {
 
   case class Setting(host: HttpUrl, apiKey: Option[String]) {
 
-    implicit val telepathySetting = new TelepathySetting {
+    implicit val telepathySetting: TelepathySetting = new TelepathySetting {
       override val headers: Map[String, String] =
         apiKey.map(k => Map("x-api-key" -> k)).getOrElse(Map.empty)
     }
