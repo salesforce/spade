@@ -34,7 +34,7 @@ case class SnsAlarm private (
 
 object SnsAlarm {
 
-  final val ActionType = "aws.action.SnsAlarm"
+  final val ActionType = "aws.action.SnsAction"
 
   def apply(topicArn: String, name: String) = new SnsAlarm(
     topicArn,

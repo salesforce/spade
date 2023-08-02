@@ -102,6 +102,16 @@ lazy val aws = (project in file("spade-aws"))
 lazy val examples = (project in file("spade-examples"))
   .settings(commonSettings: _*)
   .settings(noPublishSettings: _*)
+  .settings(assembly / test := {})
+  .settings(
+    assembly / assemblyMergeStrategy := {
+      case x if x.endsWith("module-info.class") =>
+        MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    }
+  )
   .settings(
     name := "spade-examples"
   )

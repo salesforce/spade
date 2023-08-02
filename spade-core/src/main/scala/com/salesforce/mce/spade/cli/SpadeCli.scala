@@ -102,7 +102,6 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
               (workflowKey, workflow) <- self.workflows
             } yield {
               val request = WorkflowRequest(self.name, workflow)
-              println(workflowKey)
               if (opts.compact) {
                 println(request.asJson.noSpaces)
               } else {
