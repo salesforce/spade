@@ -34,7 +34,6 @@ object EmrCluster {
 
   case class Builder(
     nameOpt: Option[String],
-    workflowNameOpt: Option[String],
     applications: Seq[String],
     subnetId: Option[String],
     instanceCountOpt: Option[Int],
@@ -51,8 +50,6 @@ object EmrCluster {
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
-
-    def withWorkflowName(name: String) = copy(workflowNameOpt = Option(name))
 
     def withApplication(application: String) = copy(applications = applications :+ application)
 
@@ -116,7 +113,7 @@ object EmrCluster {
           Option((sac.tags.toSeq ++ sac.emr.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           configurations.map(_.asSpec()).asOption(),
-          workflowNameOpt,
+          nameOpt,
           EmrResourceSpec.InstancesConfig(
             subnetId.getOrElse(sac.emr.subnetId),
             instanceCount,
@@ -133,6 +130,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None
+    None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None
   )
 }

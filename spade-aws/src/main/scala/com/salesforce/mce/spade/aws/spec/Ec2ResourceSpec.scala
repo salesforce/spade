@@ -10,7 +10,6 @@ case class Ec2ResourceSpec(
   instanceProfile: String,
   securityGroups: Option[Seq[String]],
   tags: Option[Seq[AwsTag]],
-  name: Option[String],
   spotInstance: Boolean
 )
 
