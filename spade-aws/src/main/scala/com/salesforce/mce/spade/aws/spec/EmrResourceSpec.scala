@@ -18,6 +18,7 @@ case class EmrResourceSpec(
   tags: Option[Seq[AwsTag]],
   bootstrapActions: Option[Seq[EmrResourceSpec.BootstrapAction]],
   configurations: Option[Seq[EmrResourceSpec.Configuration]],
+  workflowName: Option[String],
   instancesConfig: EmrResourceSpec.InstancesConfig
 )
 

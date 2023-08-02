@@ -20,6 +20,7 @@ object Ec2Instance {
 
   case class Builder(
     nameOpt: Option[String],
+    workflowNameOpt: Option[String],
     instanceType: Option[String],
     securityGroupIds: Option[Seq[String]],
     spotInstance: Option[Boolean],
@@ -28,6 +29,8 @@ object Ec2Instance {
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
+
+    def withWorkflowName(name: String) = copy(workflowNameOpt = Option(name))
 
     def withInstanceType(instType: String) = copy(instanceType = Option(instType))
 
@@ -53,6 +56,7 @@ object Ec2Instance {
           sac.ec2.instanceProfile,
           securityGroupIds,
           Option((sac.tags.toSeq ++ sac.ec2.tags).distinct.map { case (k, v) => AwsTag(k, v) }),
+          workflowNameOpt,
           spotInstance.getOrElse(sac.ec2.spotInstance)
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt),
@@ -62,6 +66,6 @@ object Ec2Instance {
   }
 
   def builder(): Ec2Instance.Builder =
-    Builder(None, None, None, None, None, None)
+    Builder(None, None, None, None, None, None, None)
 
 }
