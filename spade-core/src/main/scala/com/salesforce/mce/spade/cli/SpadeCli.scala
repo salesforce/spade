@@ -98,15 +98,17 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
       case Some(opts) =>
         val exitStatus = opts.command match {
           case Command.Generate =>
-            for {
+            val requests = for {
               (workflowKey, workflow) <- self.workflows
             } yield {
               val request = WorkflowRequest(self.name, workflow)
-              if (opts.compact) {
-                println(request.asJson.noSpaces)
-              } else {
-                println(request.asJson)
-              }
+              if (opts.compact) request.asJson.noSpaces else request.asJson.spaces2
+            }
+            // return json array of string blobs
+            if (opts.compact) {
+              println(requests.asJson.noSpaces)
+            } else {
+              println(requests.asJson.spaces2)
             }
             0
           case Command.Get =>
