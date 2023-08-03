@@ -16,7 +16,8 @@ case class CliOptions(
   workflowId: String,
   pipelineName: String,
   activate: Boolean,
-  compact: Boolean
+  compact: Boolean,
+  array: Boolean
 )
 
 object CliOptions {
@@ -28,7 +29,8 @@ object CliOptions {
     workflowId = "",
     pipelineName = "",
     activate = false,
-    compact = false
+    compact = false,
+    array = false
   )
 
 }

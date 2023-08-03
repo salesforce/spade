@@ -7,10 +7,8 @@
 
 package com.salesforce.mce.spade.cli
 
-import io.circe.syntax._
 import scopt.OParser
 
-import com.salesforce.mce.spade.orchard.WorkflowRequest
 import com.salesforce.mce.spade.{BuildInfo, SpadeWorkflowGroup}
 
 trait SpadeCli { self: SpadeWorkflowGroup =>
@@ -29,7 +27,10 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
           .children(
             opt[Unit]("compact")
               .action((_, c) => c.copy(compact = true))
-              .text("If specified, the workflow json will be unindented.")
+              .text("If specified, the workflow json will be unindented."),
+            opt[Unit]("array")
+              .action((_, c) => c.copy(array = true))
+              .text("If specified, the workflow json will be wrapped in array.")
           ),
         cmd("get")
           .action((_, c) => c.copy(command = Command.Get))
@@ -98,19 +99,7 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
       case Some(opts) =>
         val exitStatus = opts.command match {
           case Command.Generate =>
-            val requests = for {
-              (workflowKey, workflow) <- self.workflows
-            } yield {
-              val request = WorkflowRequest(self.name, workflow)
-              if (opts.compact) request.asJson.noSpaces else request.asJson.spaces2
-            }
-            // return json array of string blobs
-            if (opts.compact) {
-              println(requests.asJson.noSpaces)
-            } else {
-              println(requests.asJson.spaces2)
-            }
-            0
+           new GenerateCommand(opts, self).run()
           case Command.Get =>
             new GetCommand(opts).run()
           case Command.Create =>
