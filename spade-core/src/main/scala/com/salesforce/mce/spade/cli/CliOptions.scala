@@ -9,6 +9,9 @@ package com.salesforce.mce.spade.cli
 
 import com.salesforce.mce.spade.SpadeContext
 
+/*
+These are the argument options Cli commands look for, parsed automatically from SpadeCli args.
+ */
 case class CliOptions(
   command: Command,
   host: String,

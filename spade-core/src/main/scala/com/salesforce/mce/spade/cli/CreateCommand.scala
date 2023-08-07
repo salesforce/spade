@@ -1,14 +1,16 @@
 package com.salesforce.mce.spade.cli
 
+import com.salesforce.mce.spade.SpadeWorkflowGroup
+import com.salesforce.mce.spade.orchard.OrchardClient
+import com.salesforce.mce.spade.orchard.OrchardClientForPipeline
+import com.salesforce.mce.telepathy.ErrorResponse
 import okhttp3.HttpUrl
 
-import com.salesforce.mce.spade.SpadeWorkflowGroup
-import com.salesforce.mce.spade.orchard.{OrchardClient, OrchardClientForPipeline}
-import com.salesforce.mce.telepathy.ErrorResponse
+import java.util.concurrent.Callable
 
-class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
+class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) extends Callable[Option[ErrorResponse]] {
 
-  def run(): Int = {
+  override def call(): Option[ErrorResponse] = {
 
     new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
       .create(workflowGroup)
@@ -16,9 +18,8 @@ class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
         error => {
           println(s"Creation Error: ${error._1}")
           error._2.foreach(_.delete())
-          1
-        }
-        ,
+          Some(error._1)
+        },
         createdWorkflows =>
           if (opt.activate) {
             val activation = createdWorkflows
@@ -45,12 +46,12 @@ class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
               case (Some(error), activated) =>
                 println(s"Activation Error: $error")
                 activated.foreach(_.cancel())
-                1
+                Some(error)
               case _ =>
-                0
+                None
             }
           } else {
-            0
+            None
           }
       )
   }
