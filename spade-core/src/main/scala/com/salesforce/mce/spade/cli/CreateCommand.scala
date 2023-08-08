@@ -1,12 +1,12 @@
 package com.salesforce.mce.spade.cli
 
+import java.util.concurrent.Callable
+
 import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.spade.orchard.OrchardClient
 import com.salesforce.mce.spade.orchard.OrchardClientForPipeline
 import com.salesforce.mce.telepathy.ErrorResponse
 import okhttp3.HttpUrl
-
-import java.util.concurrent.Callable
 
 class CreateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) extends Callable[Option[ErrorResponse]] {
 

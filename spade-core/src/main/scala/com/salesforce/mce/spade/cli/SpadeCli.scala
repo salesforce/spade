@@ -7,12 +7,12 @@
 
 package com.salesforce.mce.spade.cli
 
-import scopt.DefaultOParserSetup
-import scopt.OParser
-import scopt.OParserSetup
 import com.salesforce.mce.spade.BuildInfo
 import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.telepathy.ErrorResponse
+import scopt.DefaultOParserSetup
+import scopt.OParser
+import scopt.OParserSetup
 
 trait SpadeCli { self: SpadeWorkflowGroup =>
 

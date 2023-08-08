@@ -1,11 +1,11 @@
 package com.salesforce.mce.spade.cli
 
-import com.salesforce.mce.spade.orchard.OrchardClientForPipeline
+import java.util.concurrent.Callable
+
 import com.salesforce.mce.spade.orchard.OrchardClient
+import com.salesforce.mce.spade.orchard.OrchardClientForPipeline
 import com.salesforce.mce.telepathy.ErrorResponse
 import okhttp3.HttpUrl
-
-import java.util.concurrent.Callable
 
 class CancelCommand(opt: CliOptions) extends Callable[Option[ErrorResponse]] {
 

@@ -1,10 +1,10 @@
 package com.salesforce.mce.spade.cli
 
+import java.util.concurrent.Callable
+
 import com.salesforce.mce.spade.orchard.{OrchardClient, OrchardClientForPipeline}
 import com.salesforce.mce.telepathy.ErrorResponse
 import okhttp3.HttpUrl
-
-import java.util.concurrent.Callable
 
 class ActivateCommand(opt: CliOptions) extends Callable[Option[ErrorResponse]] {
 

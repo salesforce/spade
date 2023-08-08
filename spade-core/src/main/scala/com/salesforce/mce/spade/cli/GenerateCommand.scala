@@ -1,11 +1,11 @@
 package com.salesforce.mce.spade.cli
 
+import java.util.concurrent.Callable
+
 import com.salesforce.mce.spade.orchard.WorkflowRequest
 import com.salesforce.mce.spade.SpadeWorkflowGroup
 import com.salesforce.mce.telepathy.ErrorResponse
 import io.circe.syntax._
-
-import java.util.concurrent.Callable
 
 class GenerateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) extends Callable[Option[ErrorResponse]] {
 
