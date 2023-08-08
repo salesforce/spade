@@ -9,6 +9,9 @@ package com.salesforce.mce.spade.cli
 
 trait Command
 
+/*
+The are the core commands supported by SpadeCli.
+ */
 object Command {
 
   case object Generate extends Command

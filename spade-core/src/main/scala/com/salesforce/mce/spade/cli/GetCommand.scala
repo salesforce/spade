@@ -1,20 +1,21 @@
 package com.salesforce.mce.spade.cli
 
-import okhttp3.HttpUrl
+import java.util.concurrent.Callable
 
 import com.salesforce.mce.spade.orchard.OrchardClient
+import com.salesforce.mce.telepathy.ErrorResponse
+import okhttp3.HttpUrl
 
-class GetCommand(opt: CliOptions) {
+class GetCommand(opt: CliOptions) extends Callable[Option[ErrorResponse]] {
 
-  def run(): Int = {
+  override def call(): Option[ErrorResponse] = {
     new OrchardClient(OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey))
       .forName(opt.pipelineName) match {
-        case Right(ps) =>
-          ps.foreach(println)
-          0
-        case Left(e) =>
-          println(e)
-          1
-      }
+      case Right(ps) =>
+        ps.foreach(println)
+        None
+      case Left(e) =>
+        Some(e)
+    }
   }
 }

@@ -1,13 +1,15 @@
 package com.salesforce.mce.spade.cli
 
-import io.circe.syntax._
+import java.util.concurrent.Callable
 
 import com.salesforce.mce.spade.orchard.WorkflowRequest
 import com.salesforce.mce.spade.SpadeWorkflowGroup
+import com.salesforce.mce.telepathy.ErrorResponse
+import io.circe.syntax._
 
-class GenerateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
+class GenerateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) extends Callable[Option[ErrorResponse]] {
 
-  def run(): Int = {
+  override def call(): Option[ErrorResponse] = {
     val requests = for {
       (workflowKey, workflow) <- workflowGroup.workflows
     } yield {
@@ -24,7 +26,8 @@ class GenerateCommand(opt: CliOptions, workflowGroup: SpadeWorkflowGroup) {
       case (false, false) =>
         requests.foreach(r => println(r.spaces2))
     }
-    0
+    None
   }
+
 
 }

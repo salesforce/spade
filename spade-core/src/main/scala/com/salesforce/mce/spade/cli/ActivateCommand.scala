@@ -1,18 +1,19 @@
 package com.salesforce.mce.spade.cli
 
-import okhttp3.HttpUrl
+import java.util.concurrent.Callable
 
 import com.salesforce.mce.spade.orchard.{OrchardClient, OrchardClientForPipeline}
+import com.salesforce.mce.telepathy.ErrorResponse
+import okhttp3.HttpUrl
 
-class ActivateCommand(opt: CliOptions) {
+class ActivateCommand(opt: CliOptions) extends Callable[Option[ErrorResponse]] {
 
-  def run(): Int = {
+  override def call(): Option[ErrorResponse] = {
     new OrchardClientForPipeline(
       OrchardClient.Setting(HttpUrl.parse(opt.host), opt.apiKey),
       opt.workflowId
     ).activate()
-
-    0
+    None
   }
 
 }
