@@ -12,6 +12,7 @@ import scopt.OParser
 import scopt.OParserSetup
 import com.salesforce.mce.spade.BuildInfo
 import com.salesforce.mce.spade.SpadeWorkflowGroup
+import com.salesforce.mce.telepathy.ErrorResponse
 
 trait SpadeCli { self: SpadeWorkflowGroup =>
 
@@ -141,15 +142,15 @@ trait SpadeCli { self: SpadeWorkflowGroup =>
       case Command.Cancel =>
         new CancelCommand(opts).call()
     }
-    if (commandResponse.isDefined) {
-      commandResponse.get.message match {
+    commandResponse match {
+      case Some(x: ErrorResponse) => x.message match {
         case Left(exception) => {
-          exception.printStackTrace()
+          exception.printStackTrace(System.err)
         }
         case Right(message) => {
           System.err.println(message)
         }
-      }
+      } case None =>
     }
 
   }
