@@ -82,7 +82,7 @@ object EmrCluster {
 
     def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
 
-    def onDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
+    def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
