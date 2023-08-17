@@ -46,7 +46,8 @@ object EmrCluster {
     bootstrapActions: Seq[BootstrapAction],
     configurations: Seq[EmrConfiguration],
     maxAttempt: Option[Int],
-    terminateAfter: Option[Duration]
+    terminateAfter: Option[Duration],
+    useOnDemandOnLastAttempt: Option[Boolean]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -80,6 +81,8 @@ object EmrCluster {
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
     def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
+
+    def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
@@ -119,7 +122,8 @@ object EmrCluster {
             Some(instanceGroupConfigs),
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption()
-          )
+          ),
+          useOnDemandOnLastAttempt
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt),
         terminateAfter
@@ -128,6 +132,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None
+    None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None, None
   )
 }

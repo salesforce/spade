@@ -24,7 +24,8 @@ object Ec2Instance {
     securityGroupIds: Option[Seq[String]],
     spotInstance: Option[Boolean],
     maxAttempt: Option[Int],
-    terminateAfter: Option[Duration]
+    terminateAfter: Option[Duration],
+    useOnDemandOnLastAttempt: Option[Boolean]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -36,6 +37,8 @@ object Ec2Instance {
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
 
     def withTerminateAfter(duration: Duration) = copy(terminateAfter = Option(duration))
+
+    def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Instance] = {
 
@@ -53,7 +56,8 @@ object Ec2Instance {
           sac.ec2.instanceProfile,
           securityGroupIds,
           Option((sac.tags ++ sac.ec2.tags).toSeq.map { case (k, v) => AwsTag(k, v) }),
-          spotInstance.getOrElse(sac.ec2.spotInstance)
+          spotInstance.getOrElse(sac.ec2.spotInstance),
+          useOnDemandOnLastAttempt
         ).asJson,
         maxAttempt.getOrElse(ctx.maxAttempt),
         terminateAfter
@@ -62,6 +66,6 @@ object Ec2Instance {
   }
 
   def builder(): Ec2Instance.Builder =
-    Builder(None, None, None, None, None, None)
+    Builder(None, None, None, None, None, None, None)
 
 }

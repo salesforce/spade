@@ -18,7 +18,8 @@ case class EmrResourceSpec(
   tags: Option[Seq[AwsTag]],
   bootstrapActions: Option[Seq[EmrResourceSpec.BootstrapAction]],
   configurations: Option[Seq[EmrResourceSpec.Configuration]],
-  instancesConfig: EmrResourceSpec.InstancesConfig
+  instancesConfig: EmrResourceSpec.InstancesConfig,
+  useOnDemandOnLastAttempt: Option[Boolean]
 )
 
 object EmrResourceSpec {

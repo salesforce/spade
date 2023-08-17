@@ -10,7 +10,8 @@ case class Ec2ResourceSpec(
   instanceProfile: String,
   securityGroups: Option[Seq[String]],
   tags: Option[Seq[AwsTag]],
-  spotInstance: Boolean
+  spotInstance: Boolean,
+  useOnDemandOnLastAttempt: Option[Boolean]
 )
 
 object Ec2ResourceSpec {
