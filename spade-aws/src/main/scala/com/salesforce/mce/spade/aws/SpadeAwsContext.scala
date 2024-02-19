@@ -21,6 +21,7 @@ object SpadeAwsContext {
 
   case class Emr(
     releaseLabel: String,
+    customAmiId: Option[String],
     subnetId: String,
     ec2KeyName: Option[String],
     instanceCount: Int,
@@ -39,6 +40,7 @@ object SpadeAwsContext {
 
       Emr(
         config.getString("release-label"),
+        optionIfMissing(config.getString("custom-ami-id")),
         config.getString("subnet-id"),
         optionIfMissing(config.getString("ec2-keyname")),
         config.getInt("instance-count"),

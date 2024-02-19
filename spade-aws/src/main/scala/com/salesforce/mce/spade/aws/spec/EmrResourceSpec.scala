@@ -12,6 +12,7 @@ import io.circe.generic.semiauto._
 
 case class EmrResourceSpec(
   releaseLabel: String,
+  customAmiId: Option[String],
   applications: Seq[String],
   serviceRole: String,
   resourceRole: String,
@@ -28,6 +29,8 @@ object EmrResourceSpec {
     subnetId: String,
     ec2KeyName: Option[String],
     instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
+    emrManagedMasterSecurityGroup: Option[String],
+    emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroups: Option[Seq[String]],
     additionalSlaveSecurityGroups: Option[Seq[String]]
   )
