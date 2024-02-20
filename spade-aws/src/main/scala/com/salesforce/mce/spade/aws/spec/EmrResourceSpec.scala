@@ -32,7 +32,8 @@ object EmrResourceSpec {
     emrManagedMasterSecurityGroup: Option[String],
     emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroups: Option[Seq[String]],
-    additionalSlaveSecurityGroups: Option[Seq[String]]
+    additionalSlaveSecurityGroups: Option[Seq[String]],
+    serviceAccessSecurityGroup: Option[String]
   )
 
   case class InstanceGroupConfig(

@@ -45,6 +45,7 @@ object EmrCluster {
     emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
+    serviceAccessSecurityGroup: Option[String],
     bootstrapActions: Seq[BootstrapAction],
     configurations: Seq[EmrConfiguration],
     maxAttempt: Option[Int],
@@ -77,6 +78,8 @@ object EmrCluster {
 
     def withAdditionalSlaveSecurityGroupIds(groupIds: String*) =
       copy(additionalSlaveSecurityGroupIds = additionalSlaveSecurityGroupIds ++ groupIds)
+
+    def withServiceAccessSecurityGroupId(groupId: String) = copy(serviceAccessSecurityGroup = Option(groupId))
 
     def withBootstrapActions(bas: BootstrapAction*) =
       copy(bootstrapActions = bootstrapActions ++ bas)
@@ -130,7 +133,8 @@ object EmrCluster {
             emrManagedMasterSecurityGroup,
             emrManagedSlaveSecurityGroup,
             additionalMasterSecurityGroupIds.asOption(),
-            additionalSlaveSecurityGroupIds.asOption()
+            additionalSlaveSecurityGroupIds.asOption(),
+            serviceAccessSecurityGroup
           ),
           useOnDemandOnLastAttempt
         ).asJson,
@@ -141,6 +145,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, Seq.empty, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None, None
+    None, Seq.empty, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, None, Seq.empty, Seq.empty, None, None, None
   )
 }
