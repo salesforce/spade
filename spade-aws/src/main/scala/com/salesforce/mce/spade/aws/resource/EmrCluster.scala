@@ -41,6 +41,8 @@ object EmrCluster {
     coreInstanceType: Option[String],
     masterInstanceBidPrice: Option[String],
     coreInstanceBidPrice: Option[String],
+    emrManagedMasterSecurityGroup: Option[String],
+    emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroupIds: Seq[String],
     additionalSlaveSecurityGroupIds: Seq[String],
     bootstrapActions: Seq[BootstrapAction],
@@ -65,6 +67,10 @@ object EmrCluster {
     def withMasterInstanceBidPrice(bidPrice: Double) = copy(masterInstanceBidPrice = Option(s"$bidPrice"))
 
     def withCoreInstanceBidPrice(bidPrice: Double) = copy(coreInstanceBidPrice = Option(s"$bidPrice"))
+
+    def withManagedMasterSecurityGroupId(groupId: String) = copy(emrManagedMasterSecurityGroup = Option(groupId))
+
+    def withManagedSlaveSecurityGroupId(groupId: String) = copy(emrManagedSlaveSecurityGroup = Option(groupId))
 
     def withAdditionalMasterSecurityGroupIds(groupIds: String*) =
       copy(additionalMasterSecurityGroupIds = additionalMasterSecurityGroupIds ++ groupIds)
@@ -110,6 +116,7 @@ object EmrCluster {
         ResourceType,
         EmrResourceSpec(
           sac.emr.releaseLabel,
+          sac.emr.customAmiId,
           applications,
           sac.emr.serviceRole,
           sac.emr.resourceRole,
@@ -120,6 +127,8 @@ object EmrCluster {
             subnetId.getOrElse(sac.emr.subnetId),
             sac.emr.ec2KeyName,
             Some(instanceGroupConfigs),
+            emrManagedMasterSecurityGroup,
+            emrManagedSlaveSecurityGroup,
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption()
           ),
@@ -132,6 +141,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, Seq.empty, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None, None
+    None, Seq.empty, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty, Seq.empty, None, None, None
   )
 }
