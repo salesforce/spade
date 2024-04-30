@@ -20,6 +20,7 @@ object Ec2Instance {
 
   case class Builder(
     nameOpt: Option[String],
+    amiId: Option[String],
     instanceType: Option[String],
     securityGroupIds: Option[Seq[String]],
     spotInstance: Option[Boolean],
@@ -29,6 +30,8 @@ object Ec2Instance {
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
+
+    def withAmiId(amiId: String) = copy(amiId = Option(amiId))
 
     def withInstanceType(instType: String) = copy(instanceType = Option(instType))
 
@@ -50,7 +53,7 @@ object Ec2Instance {
         name,
         ResourceType,
         Ec2ResourceSpec(
-          sac.ec2.amiImageId,
+          amiId.getOrElse(sac.ec2.amiImageId),
           sac.ec2.subnetId,
           instanceType.getOrElse(sac.ec2.instanceType),
           sac.ec2.instanceProfile,
@@ -66,6 +69,6 @@ object Ec2Instance {
   }
 
   def builder(): Ec2Instance.Builder =
-    Builder(None, None, None, None, None, None, None)
+    Builder(None, None, None, None, None, None, None, None)
 
 }
