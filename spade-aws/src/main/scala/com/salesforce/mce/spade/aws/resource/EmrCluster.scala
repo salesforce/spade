@@ -35,6 +35,7 @@ object EmrCluster {
   case class Builder(
     nameOpt: Option[String],
     applications: Seq[String],
+    amiId: Option[String],
     subnetId: Option[String],
     instanceCountOpt: Option[Int],
     masterInstanceType: Option[String],
@@ -54,6 +55,8 @@ object EmrCluster {
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
+
+    def withAmiId(amiId: String) = copy(amiId = Option(amiId))
 
     def withApplication(application: String) = copy(applications = applications :+ application)
 
@@ -119,7 +122,7 @@ object EmrCluster {
         ResourceType,
         EmrResourceSpec(
           sac.emr.releaseLabel,
-          sac.emr.customAmiId,
+          amiId.orElse(sac.emr.customAmiId),
           applications,
           sac.emr.serviceRole,
           sac.emr.resourceRole,
@@ -145,6 +148,6 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, Seq.empty, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, None, Seq.empty, Seq.empty, None, None, None
+    None, Seq.empty, None, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, None, Seq.empty, Seq.empty, None, None, None
   )
 }
