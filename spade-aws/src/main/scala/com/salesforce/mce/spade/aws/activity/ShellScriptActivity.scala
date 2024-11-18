@@ -21,6 +21,8 @@ object ShellScriptActivity {
     runsOn: Resource[Ec2Instance],
     executionTimeout: Option[Int],
     deliveryTimeout: Option[Int],
+    region: Option[String],
+    endPoint: Option[String],
     maxAttempt: Option[Int],
     alarmFields: AlarmFields
   ) extends WithAlarms {
@@ -33,6 +35,8 @@ object ShellScriptActivity {
     def withOutputUri(uri: String) = copy(outputUri = Option(uri))
     def withExecutionTimeout(timeout: Int) = copy(executionTimeout = Option(timeout))
     def withDeliveryTimeout(timeout: Int) = copy(deliveryTimeout = Option(timeout))
+    def withRegion(region: String) = copy(region = Option(region))
+    def withEndPoint(endPoint: String) = copy(endPoint = Option(endPoint))
     def withMaxAttempt(n: Int) = copy(maxAttempt = Option(n))
     def updateAlarmFields(fields: AlarmFields) = copy(alarmFields = fields)
 
@@ -50,7 +54,9 @@ object ShellScriptActivity {
           args,
           outputUri,
           executionTimeout,
-          deliveryTimeout
+          deliveryTimeout,
+          region,
+          endPoint
         ).asJson,
         runsOn,
         maxAttempt.getOrElse(ctx.maxAttempt),
@@ -62,5 +68,5 @@ object ShellScriptActivity {
   }
 
   def builder(ec2Instance: Resource[Ec2Instance], scriptLocation: String) =
-    Builder(None, scriptLocation, Seq.empty, None, ec2Instance, None, None, None, AlarmFields())
+    Builder(None, scriptLocation, Seq.empty, None, ec2Instance, None, None, None, None, None, AlarmFields())
 }
