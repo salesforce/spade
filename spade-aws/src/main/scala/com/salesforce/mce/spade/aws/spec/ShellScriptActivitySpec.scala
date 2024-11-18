@@ -8,7 +8,9 @@ case class ShellScriptActivitySpec(
   args: Seq[String],
   outputUri: Option[String],
   executionTimeout: Option[Int],
-  deliveryTimeout: Option[Int]
+  deliveryTimeout: Option[Int],
+  region: Option[String],
+  endPoint: Option[String]
 )
 
 object ShellScriptActivitySpec {
