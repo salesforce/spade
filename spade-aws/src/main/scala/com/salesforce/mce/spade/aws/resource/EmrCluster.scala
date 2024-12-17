@@ -96,6 +96,12 @@ object EmrCluster {
 
     def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
+    def withOnDemandMaster(onDemand: Boolean) = copy(masterInstanceBidPrice = if (onDemand) None else masterInstanceBidPrice)
+
+    def withOnDemandCore(onDemand: Boolean) = copy(coreInstanceBidPrice = if (onDemand) None else coreInstanceBidPrice)
+
+    def withOnDemandAlways(onDemand: Boolean) = withOnDemandMaster(onDemand).withOnDemandCore(onDemand)
+
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
       val id = UUID.randomUUID().toString()

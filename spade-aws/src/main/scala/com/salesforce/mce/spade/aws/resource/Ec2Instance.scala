@@ -43,6 +43,8 @@ object Ec2Instance {
 
     def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
+    def withOnDemandAlways(onDemand: Boolean) = copy(spotInstance = Option(!onDemand))
+
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[Ec2Instance] = {
 
       val id = UUID.randomUUID().toString()
