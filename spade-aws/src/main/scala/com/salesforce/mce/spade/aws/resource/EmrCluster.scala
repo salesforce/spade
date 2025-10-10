@@ -36,7 +36,8 @@ object EmrCluster {
     nameOpt: Option[String],
     applications: Seq[String],
     amiId: Option[String],
-    subnetId: Option[String],
+    subnetIds: Seq[String],
+    useEmrInstanceGroup: Option[Boolean],
     instanceCountOpt: Option[Int],
     masterInstanceType: Option[String],
     coreInstanceType: Option[String],
@@ -51,7 +52,9 @@ object EmrCluster {
     configurations: Seq[EmrConfiguration],
     maxAttempt: Option[Int],
     terminateAfter: Option[Duration],
-    useOnDemandOnLastAttempt: Option[Boolean]
+    useOnDemandOnLastAttempt: Option[Boolean],
+    spotAllocationStrategy: Option[String],
+    onDemandAllocationStrategy: Option[String]
   ) {
 
     def withName(name: String) = copy(nameOpt = Option(name))
@@ -60,7 +63,9 @@ object EmrCluster {
 
     def withApplication(application: String) = copy(applications = applications :+ application)
 
-    def withSubnetId(subnetId: String) = copy(subnetId = Option(subnetId))
+    def withSubnetIds(ids: String*) = copy(subnetIds = subnetIds ++ ids)
+
+    def withUseEmrInstanceGroup(use: Boolean) = copy(useEmrInstanceGroup = Option(use))
 
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
 
@@ -96,6 +101,10 @@ object EmrCluster {
 
     def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
+    def withSpotAllocationStrategy(strategy: String) = copy(spotAllocationStrategy = Option(strategy))
+
+    def withOnDemandAllocationStrategy(strategy: String) = copy(onDemandAllocationStrategy = Option(strategy))
+
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
       val id = UUID.randomUUID().toString()
@@ -115,6 +124,27 @@ object EmrCluster {
           coreInstanceBidPrice
         )
       )
+      val instanceFleetConfigs = Seq(
+        EmrResourceSpec.InstanceFleetConfig(
+          s"${InstanceRoleType.Master}",
+          1,
+          Seq(EmrResourceSpec.InstanceConfig(
+            masterInstanceType.getOrElse(sac.emr.masterInstanceType),
+            masterInstanceBidPrice,
+            Some(1)),
+          )
+        ),
+        EmrResourceSpec.InstanceFleetConfig(
+          s"${InstanceRoleType.Core}",
+          scala.math.max(instanceCount - 1, 1),
+          Seq(EmrResourceSpec.InstanceConfig(
+            coreInstanceType.getOrElse(sac.emr.coreInstanceType),
+            coreInstanceBidPrice,
+            Some(1)),
+          )
+        )
+      )
+
 
       Resource[EmrCluster](
         id,
@@ -130,14 +160,18 @@ object EmrCluster {
           bootstrapActions.map(ba => EmrResourceSpec.BootstrapAction(ba.path, ba.args)).asOption(),
           configurations.map(_.asSpec()).asOption(),
           EmrResourceSpec.InstancesConfig(
-            subnetId.getOrElse(sac.emr.subnetId),
+            if (subnetIds.nonEmpty) subnetIds else sac.emr.subnetIds,
             sac.emr.ec2KeyName,
-            Some(instanceGroupConfigs),
+            useEmrInstanceGroup,
+            if (useEmrInstanceGroup.contains(false)) None else Some(instanceGroupConfigs),
+            if (useEmrInstanceGroup.contains(false)) Some(instanceFleetConfigs) else None,
             emrManagedMasterSecurityGroup,
             emrManagedSlaveSecurityGroup,
             additionalMasterSecurityGroupIds.asOption(),
             additionalSlaveSecurityGroupIds.asOption(),
-            serviceAccessSecurityGroup
+            serviceAccessSecurityGroup,
+            spotAllocationStrategy,
+            onDemandAllocationStrategy
           ),
           useOnDemandOnLastAttempt
         ).asJson,
@@ -148,6 +182,27 @@ object EmrCluster {
   }
 
   def builder(): EmrCluster.Builder = Builder(
-    None, Seq.empty, None, None, None, None, None, None, None, None, None, Seq.empty, Seq.empty, None, Seq.empty, Seq.empty, None, None, None
+    nameOpt = None,
+    applications = Seq.empty,
+    amiId = None,
+    subnetIds = Seq.empty,
+    useEmrInstanceGroup = None,
+    instanceCountOpt = None,
+    masterInstanceType = None,
+    coreInstanceType = None,
+    masterInstanceBidPrice = None,
+    coreInstanceBidPrice = None,
+    emrManagedMasterSecurityGroup = None,
+    emrManagedSlaveSecurityGroup = None,
+    additionalMasterSecurityGroupIds = Seq.empty,
+    additionalSlaveSecurityGroupIds = Seq.empty,
+    serviceAccessSecurityGroup = None,
+    bootstrapActions = Seq.empty,
+    configurations = Seq.empty,
+    maxAttempt = None,
+    terminateAfter = None,
+    useOnDemandOnLastAttempt = None,
+    spotAllocationStrategy = None,
+    onDemandAllocationStrategy = None
   )
 }

@@ -26,14 +26,18 @@ case class EmrResourceSpec(
 object EmrResourceSpec {
 
   case class InstancesConfig(
-    subnetId: String,
+    subnetIds: Seq[String],
     ec2KeyName: Option[String],
+    useEmrInstanceGroup: Option[Boolean],
     instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
+    instanceFleetConfigs: Option[Seq[InstanceFleetConfig]],
     emrManagedMasterSecurityGroup: Option[String],
     emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroups: Option[Seq[String]],
     additionalSlaveSecurityGroups: Option[Seq[String]],
-    serviceAccessSecurityGroup: Option[String]
+    serviceAccessSecurityGroup: Option[String],
+    spotAllocationStrategy: Option[String],
+    onDemandAllocationStrategy: Option[String]
   )
 
   case class InstanceGroupConfig(
@@ -42,11 +46,30 @@ object EmrResourceSpec {
     instanceType: String,
     instanceBidPrice: Option[String]
   )
+
+  case class InstanceFleetConfig(
+    instanceRoleType: String,
+    instanceCount: Int,
+    instanceConfigs: Seq[InstanceConfig]
+  )
+
+  case class InstanceConfig(
+    instanceType: String,
+    instanceBidPrice: Option[String],
+    instanceWeight: Option[Int]
+  )
+
   implicit val igcDecoder: Decoder[InstanceGroupConfig] = deriveDecoder[InstanceGroupConfig]
   implicit val igcEncoder: Encoder[InstanceGroupConfig] = deriveEncoder[InstanceGroupConfig]
 
-  implicit val icDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
-  implicit val icEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
+  implicit val ifcDecoder: Decoder[InstanceFleetConfig] = deriveDecoder[InstanceFleetConfig]
+  implicit val ifcEncoder: Encoder[InstanceFleetConfig] = deriveEncoder[InstanceFleetConfig]
+
+  implicit val icDecoder: Decoder[InstanceConfig] = deriveDecoder[InstanceConfig]
+  implicit val icEncoder: Encoder[InstanceConfig] = deriveEncoder[InstanceConfig]
+
+  implicit val iscDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
+  implicit val iscEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
 
   case class BootstrapAction(path: String, args: Seq[String])
   implicit val baDecoder: Decoder[BootstrapAction] = deriveDecoder[BootstrapAction]
