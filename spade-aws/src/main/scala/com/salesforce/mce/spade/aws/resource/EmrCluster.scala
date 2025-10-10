@@ -37,7 +37,7 @@ object EmrCluster {
     applications: Seq[String],
     amiId: Option[String],
     subnetIds: Seq[String],
-    useEmrInstanceGroup: Option[Boolean],
+    useEmrInstanceFleet: Option[Boolean],
     instanceCountOpt: Option[Int],
     masterInstanceType: Option[String],
     coreInstanceType: Option[String],
@@ -65,7 +65,7 @@ object EmrCluster {
 
     def withSubnetIds(ids: String*) = copy(subnetIds = subnetIds ++ ids)
 
-    def withUseEmrInstanceGroup(use: Boolean) = copy(useEmrInstanceGroup = Option(use))
+    def withUseEmrInstanceFleet(use: Boolean) = copy(useEmrInstanceFleet = Option(use))
 
     def withInstanceCount(c: Int) = copy(instanceCountOpt = Option(c))
 
@@ -131,7 +131,7 @@ object EmrCluster {
           Seq(EmrResourceSpec.InstanceConfig(
             masterInstanceType.getOrElse(sac.emr.masterInstanceType),
             masterInstanceBidPrice,
-            Some(1)),
+            None),
           )
         ),
         EmrResourceSpec.InstanceFleetConfig(
@@ -140,7 +140,7 @@ object EmrCluster {
           Seq(EmrResourceSpec.InstanceConfig(
             coreInstanceType.getOrElse(sac.emr.coreInstanceType),
             coreInstanceBidPrice,
-            Some(1)),
+            None),
           )
         )
       )
@@ -162,9 +162,9 @@ object EmrCluster {
           EmrResourceSpec.InstancesConfig(
             if (subnetIds.nonEmpty) subnetIds else sac.emr.subnetIds,
             sac.emr.ec2KeyName,
-            useEmrInstanceGroup,
-            if (useEmrInstanceGroup.contains(false)) None else Some(instanceGroupConfigs),
-            if (useEmrInstanceGroup.contains(false)) Some(instanceFleetConfigs) else None,
+            useEmrInstanceFleet,
+            if (useEmrInstanceFleet.contains(true)) None else Some(instanceGroupConfigs),
+            if (useEmrInstanceFleet.contains(true)) Some(instanceFleetConfigs) else None,
             emrManagedMasterSecurityGroup,
             emrManagedSlaveSecurityGroup,
             additionalMasterSecurityGroupIds.asOption(),
@@ -186,7 +186,7 @@ object EmrCluster {
     applications = Seq.empty,
     amiId = None,
     subnetIds = Seq.empty,
-    useEmrInstanceGroup = None,
+    useEmrInstanceFleet = None,
     instanceCountOpt = None,
     masterInstanceType = None,
     coreInstanceType = None,
