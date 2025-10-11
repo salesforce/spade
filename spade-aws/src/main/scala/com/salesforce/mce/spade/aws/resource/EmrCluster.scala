@@ -127,24 +127,25 @@ object EmrCluster {
       val instanceFleetConfigs = Seq(
         EmrResourceSpec.InstanceFleetConfig(
           s"${InstanceRoleType.Master}",
-          1,
-          Seq(EmrResourceSpec.InstanceConfig(
+          Some(1),
+          Some(1),
+          Seq(EmrResourceSpec.InstanceTypeConfig(
             masterInstanceType.getOrElse(sac.emr.masterInstanceType),
             masterInstanceBidPrice,
-            None),
+            1)
           )
         ),
         EmrResourceSpec.InstanceFleetConfig(
           s"${InstanceRoleType.Core}",
-          scala.math.max(instanceCount - 1, 1),
-          Seq(EmrResourceSpec.InstanceConfig(
-            coreInstanceType.getOrElse(sac.emr.coreInstanceType),
-            coreInstanceBidPrice,
-            None),
+          Some(scala.math.max(instanceCount - 1, 1)),
+          Some(scala.math.max(instanceCount - 1, 1)),
+          Seq(EmrResourceSpec.InstanceTypeConfig(
+            masterInstanceType.getOrElse(sac.emr.masterInstanceType),
+            masterInstanceBidPrice,
+            1)
           )
         )
       )
-
 
       Resource[EmrCluster](
         id,

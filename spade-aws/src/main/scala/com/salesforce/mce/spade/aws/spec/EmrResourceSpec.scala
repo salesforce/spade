@@ -28,7 +28,7 @@ object EmrResourceSpec {
   case class InstancesConfig(
     subnetIds: Seq[String],
     ec2KeyName: Option[String],
-    useEmrInstanceGroup: Option[Boolean],
+    useEmrInstanceFleet: Option[Boolean],
     instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
     instanceFleetConfigs: Option[Seq[InstanceFleetConfig]],
     emrManagedMasterSecurityGroup: Option[String],
@@ -49,14 +49,15 @@ object EmrResourceSpec {
 
   case class InstanceFleetConfig(
     instanceRoleType: String,
-    instanceCount: Int,
-    instanceConfigs: Seq[InstanceConfig]
+    targetOnDemandCapacity: Option[Int],
+    targetSpotCapacity: Option[Int],
+    instanceConfigs: Seq[InstanceTypeConfig]
   )
 
-  case class InstanceConfig(
+  case class InstanceTypeConfig(
     instanceType: String,
     instanceBidPrice: Option[String],
-    instanceWeight: Option[Int]
+    instanceWeightedCapacity: Int
   )
 
   implicit val igcDecoder: Decoder[InstanceGroupConfig] = deriveDecoder[InstanceGroupConfig]
@@ -65,8 +66,8 @@ object EmrResourceSpec {
   implicit val ifcDecoder: Decoder[InstanceFleetConfig] = deriveDecoder[InstanceFleetConfig]
   implicit val ifcEncoder: Encoder[InstanceFleetConfig] = deriveEncoder[InstanceFleetConfig]
 
-  implicit val icDecoder: Decoder[InstanceConfig] = deriveDecoder[InstanceConfig]
-  implicit val icEncoder: Encoder[InstanceConfig] = deriveEncoder[InstanceConfig]
+  implicit val itcDecoder: Decoder[InstanceTypeConfig] = deriveDecoder[InstanceTypeConfig]
+  implicit val itcEncoder: Encoder[InstanceTypeConfig] = deriveEncoder[InstanceTypeConfig]
 
   implicit val iscDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
   implicit val iscEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
