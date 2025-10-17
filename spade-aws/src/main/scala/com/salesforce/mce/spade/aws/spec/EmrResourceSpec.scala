@@ -26,18 +26,16 @@ case class EmrResourceSpec(
 object EmrResourceSpec {
 
   case class InstancesConfig(
-    subnetIds: Seq[String],
+    subnetId: Option[String],
+    subnetIds: Option[Seq[String]],
     ec2KeyName: Option[String],
-    useEmrInstanceFleet: Option[Boolean],
     instanceGroupConfigs: Option[Seq[InstanceGroupConfig]],
     instanceFleetConfigs: Option[Seq[InstanceFleetConfig]],
     emrManagedMasterSecurityGroup: Option[String],
     emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroups: Option[Seq[String]],
     additionalSlaveSecurityGroups: Option[Seq[String]],
-    serviceAccessSecurityGroup: Option[String],
-    spotAllocationStrategy: Option[String],
-    onDemandAllocationStrategy: Option[String]
+    serviceAccessSecurityGroup: Option[String]
   )
 
   case class InstanceGroupConfig(
@@ -47,30 +45,46 @@ object EmrResourceSpec {
     instanceBidPrice: Option[String]
   )
 
-  case class InstanceFleetConfig(
-    instanceRoleType: String,
-    targetOnDemandCapacity: Option[Int],
-    targetSpotCapacity: Option[Int],
-    instanceConfigs: Seq[InstanceTypeConfig]
-  )
-
   case class InstanceTypeConfig(
     instanceType: String,
-    instanceBidPrice: Option[String],
-    instanceWeightedCapacity: Int
+    bidPrice: Option[String],
+    weightedCapacity: Option[Int]
+  )
+
+  case class SpotProvisioningSpecification(
+    timeoutAction: String,
+    timeoutDurationMinutes: Int,
+    allocationStrategy: Option[String]
+  )
+
+  case class OnDemandProvisioningSpecification(allocationStrategy: String)
+
+  case class InstanceFleetConfig(
+    instanceRoleType: String,
+    targetOnDemandCapacity: Int,
+    targetSpotCapacity: Option[Int],
+    spotProvisioningSpecification: Option[SpotProvisioningSpecification],
+    onDemandProvisioningSpecification: Option[OnDemandProvisioningSpecification],
+    instanceConfigs: Seq[InstanceTypeConfig]
   )
 
   implicit val igcDecoder: Decoder[InstanceGroupConfig] = deriveDecoder[InstanceGroupConfig]
   implicit val igcEncoder: Encoder[InstanceGroupConfig] = deriveEncoder[InstanceGroupConfig]
-
-  implicit val ifcDecoder: Decoder[InstanceFleetConfig] = deriveDecoder[InstanceFleetConfig]
-  implicit val ifcEncoder: Encoder[InstanceFleetConfig] = deriveEncoder[InstanceFleetConfig]
 
   implicit val itcDecoder: Decoder[InstanceTypeConfig] = deriveDecoder[InstanceTypeConfig]
   implicit val itcEncoder: Encoder[InstanceTypeConfig] = deriveEncoder[InstanceTypeConfig]
 
   implicit val iscDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
   implicit val iscEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
+
+  implicit val spsDecoder: Decoder[SpotProvisioningSpecification] = deriveDecoder[SpotProvisioningSpecification]
+  implicit val spsEncoder: Encoder[SpotProvisioningSpecification] = deriveEncoder[SpotProvisioningSpecification]
+
+  implicit val odpsDecoder: Decoder[OnDemandProvisioningSpecification] = deriveDecoder[OnDemandProvisioningSpecification]
+  implicit val odpsEncoder: Encoder[OnDemandProvisioningSpecification] = deriveEncoder[OnDemandProvisioningSpecification]
+
+  implicit val ifcDecoder: Decoder[InstanceFleetConfig] = deriveDecoder[InstanceFleetConfig]
+  implicit val ifcEncoder: Encoder[InstanceFleetConfig] = deriveEncoder[InstanceFleetConfig]
 
   case class BootstrapAction(path: String, args: Seq[String])
   implicit val baDecoder: Decoder[BootstrapAction] = deriveDecoder[BootstrapAction]

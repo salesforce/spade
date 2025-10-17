@@ -22,16 +22,14 @@ object SpadeAwsContext {
   case class Emr(
     releaseLabel: String,
     customAmiId: Option[String],
-    subnetIds: Seq[String],
-    useEmrInstanceFleet: Option[Boolean],
+    subnetId: String,
     ec2KeyName: Option[String],
     instanceCount: Int,
+    targetCapacity: Int,
     masterInstanceType: String,
     coreInstanceType: String,
     serviceRole: String,
     resourceRole: String,
-    spotAllocationStrategy: Option[String],
-    onDemandAllocationStrategy: Option[String],
     tags: Map[String, String]
   )
 
@@ -44,16 +42,14 @@ object SpadeAwsContext {
       Emr(
         config.getString("release-label"),
         optionIfMissing(config.getString("custom-ami-id")),
-        Seq(config.getString("subnet-id")),
-        optionIfMissing(config.getBoolean("use-instance-fleet")),
+        config.getString("subnet-id"),
         optionIfMissing(config.getString("ec2-keyname")),
         config.getInt("instance-count"),
+        config.getInt("target-capacity"),
         config.getString("master-instance-type"),
         config.getString("core-instance-type"),
         config.getString("service-role"),
         config.getString("resource-role"),
-        optionIfMissing(config.getString("spot-allocation-Strategy")),
-        optionIfMissing(config.getString("on-demand-allocation-strategy")),
         Map.empty
       )
     }
