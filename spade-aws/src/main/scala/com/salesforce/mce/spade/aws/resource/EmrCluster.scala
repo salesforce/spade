@@ -161,7 +161,7 @@ object EmrCluster {
 
       val defaultSpotProvisionSpec = SpotProvisioningSpecification(
         s"${SpotTimeoutAction.SwitchToOnDemand}",
-        sac.emr.defaultSpotTimeoutDurationMinutes,
+        sac.emr.spotTimeoutDurationMinutes,
         Some(s"${SpotAllocationStrategy.CapacityOptimized}")
       )
 
