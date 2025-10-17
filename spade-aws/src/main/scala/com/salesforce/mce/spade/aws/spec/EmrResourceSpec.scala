@@ -74,8 +74,8 @@ object EmrResourceSpec {
   implicit val itcDecoder: Decoder[InstanceTypeConfig] = deriveDecoder[InstanceTypeConfig]
   implicit val itcEncoder: Encoder[InstanceTypeConfig] = deriveEncoder[InstanceTypeConfig]
 
-  implicit val iscDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
-  implicit val iscEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
+  implicit val icDecoder: Decoder[InstancesConfig] = deriveDecoder[InstancesConfig]
+  implicit val icEncoder: Encoder[InstancesConfig] = deriveEncoder[InstancesConfig]
 
   implicit val spsDecoder: Decoder[SpotProvisioningSpecification] = deriveDecoder[SpotProvisioningSpecification]
   implicit val spsEncoder: Encoder[SpotProvisioningSpecification] = deriveEncoder[SpotProvisioningSpecification]
