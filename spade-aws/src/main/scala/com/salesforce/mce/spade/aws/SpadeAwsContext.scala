@@ -28,6 +28,7 @@ object SpadeAwsContext {
     targetCapacity: Int,
     masterInstanceType: String,
     coreInstanceType: String,
+    defaultSpotTimeoutDuration: Int,
     serviceRole: String,
     resourceRole: String,
     tags: Map[String, String]
@@ -48,6 +49,7 @@ object SpadeAwsContext {
         config.getInt("target-capacity"),
         config.getString("master-instance-type"),
         config.getString("core-instance-type"),
+        config.getInt("default-spot-timeout-duration"),
         config.getString("service-role"),
         config.getString("resource-role"),
         Map.empty
