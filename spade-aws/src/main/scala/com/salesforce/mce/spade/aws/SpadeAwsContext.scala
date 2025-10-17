@@ -25,8 +25,10 @@ object SpadeAwsContext {
     subnetId: String,
     ec2KeyName: Option[String],
     instanceCount: Int,
+    targetCapacity: Int,
     masterInstanceType: String,
     coreInstanceType: String,
+    spotTimeoutDurationMinutes: Int,
     serviceRole: String,
     resourceRole: String,
     tags: Map[String, String]
@@ -44,8 +46,10 @@ object SpadeAwsContext {
         config.getString("subnet-id"),
         optionIfMissing(config.getString("ec2-keyname")),
         config.getInt("instance-count"),
+        config.getInt("target-capacity"),
         config.getString("master-instance-type"),
         config.getString("core-instance-type"),
+        config.getInt("spot-timeout-duration-minutes"),
         config.getString("service-role"),
         config.getString("resource-role"),
         Map.empty
