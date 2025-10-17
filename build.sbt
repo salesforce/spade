@@ -1,3 +1,5 @@
+import xerial.sbt.Sonatype.sonatypeCentralHost
+
 lazy val scala212 = "2.12.18"
 lazy val scala213 = "2.13.11"
 lazy val supportedScalaVersions = List(scala212, scala213)
@@ -5,10 +7,10 @@ lazy val supportedScalaVersions = List(scala212, scala213)
 val circeVersion = "0.14.2"
 
 val scalaTestArtifact = "org.scalatest" %% "scalatest" % "3.2.+" % Test
-val telepathyDep = "com.salesforce.mce" %% "telepathy" % "1.5.0"
-val typesafeConfigDep = "com.typesafe" % "config" % "1.4.2"
+val telepathyDep = "com.salesforce.mce" %% "telepathy" % "1.6.2"
+val typesafeConfigDep = "com.typesafe" % "config" % "1.4.5"
 val scoptDep = "com.github.scopt" %% "scopt" % "4.1.0"
-val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.11.0"
+val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.14.0"
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
@@ -36,7 +38,8 @@ lazy val publishSettings = Seq(
       url = url("http://github.com/realstraw")
     )
   ),
-  useGpgPinentry := true
+  useGpgPinentry := true,
+  ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 )
 
 lazy val noPublishSettings = Seq(
