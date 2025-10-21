@@ -12,6 +12,8 @@ val typesafeConfigDep = "com.typesafe" % "config" % "1.4.5"
 val scoptDep = "com.github.scopt" %% "scopt" % "4.1.0"
 val scalaComatDep =  "org.scala-lang.modules" %% "scala-collection-compat" % "2.14.0"
 
+ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
+
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
@@ -26,7 +28,7 @@ lazy val publishSettings = Seq(
   ),
   credentials += Credentials(
     "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
+    "central.sonatype.org",
     sys.env.getOrElse("SONATYPE_USERNAME",""),
     sys.env.getOrElse("SONATYPE_PASSWORD","")
   ),
@@ -38,8 +40,7 @@ lazy val publishSettings = Seq(
       url = url("http://github.com/realstraw")
     )
   ),
-  useGpgPinentry := true,
-  ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
+  useGpgPinentry := true
 )
 
 lazy val noPublishSettings = Seq(

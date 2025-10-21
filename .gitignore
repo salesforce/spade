@@ -10,3 +10,7 @@ target
 
 # metals
 .bsp
+
+.bloop
+.metals
+metals.sbt
