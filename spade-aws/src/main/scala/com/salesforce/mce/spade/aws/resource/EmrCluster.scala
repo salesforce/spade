@@ -60,6 +60,7 @@ object EmrCluster {
     instanceCountOpt: Option[Int],
     targetOnDemandCapacityOpt: Option[Int],
     targetSpotCapacityOpt: Option[Int],
+    enableMasterOnDemand: Option[Boolean],
     spotProvisioningSpecification: Option[SpotProvisioningSpecification],
     onDemandProvisioningSpecification: Option[OnDemandProvisioningSpecification],
     masterInstanceTypes: Seq[InstanceTypeConfig],
@@ -93,6 +94,8 @@ object EmrCluster {
     def withTargetOnDemandCapacityOpt(c: Int) = copy(targetOnDemandCapacityOpt = Option(c))
 
     def withTargetSpotCapacityOpt(c: Int) = copy(targetSpotCapacityOpt = Option(c))
+
+    def withEnableMasterOnDemand(enable: Boolean) = copy(enableMasterOnDemand = Option(enable))
 
     def withSpotProvisioningSpecification(spec: SpotProvisioningSpecification) =
       copy(spotProvisioningSpecification = Option(spec))
@@ -147,7 +150,7 @@ object EmrCluster {
                 s"${InstanceRoleType.Master}",
                 1,
                 firstMasterInstanceOpt.map(_.instanceType).getOrElse(sac.emr.masterInstanceType),
-                firstMasterInstanceOpt.flatMap(_.bidPrice),
+                if (enableMasterOnDemand.contains(true)) None else firstMasterInstanceOpt.flatMap(_.bidPrice),
               ),
               EmrResourceSpec.InstanceGroupConfig(
                 s"${InstanceRoleType.Core}",
@@ -176,7 +179,7 @@ object EmrCluster {
               EmrResourceSpec.InstanceFleetConfig(
                 s"${InstanceRoleType.Master}",
                 1,
-                targetSpotCapacityOpt.map(_ => 1),
+                if (enableMasterOnDemand.contains(true)) None else targetSpotCapacityOpt.map(_ => 1),
                 spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
                 onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
                 masterInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, None))
@@ -236,6 +239,7 @@ object EmrCluster {
     instanceCountOpt = None,
     targetOnDemandCapacityOpt = None,
     targetSpotCapacityOpt = None,
+    enableMasterOnDemand = None,
     spotProvisioningSpecification = None,
     onDemandProvisioningSpecification = None,
     masterInstanceTypes = Seq.empty,
