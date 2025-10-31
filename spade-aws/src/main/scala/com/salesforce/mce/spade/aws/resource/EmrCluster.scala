@@ -64,6 +64,8 @@ object EmrCluster {
     onDemandProvisioningSpecification: Option[OnDemandProvisioningSpecification],
     masterInstanceTypes: Seq[InstanceTypeConfig],
     coreInstanceTypes: Seq[InstanceTypeConfig],
+    instanceFleetConfigs: Seq[EmrResourceSpec.InstanceFleetConfig],
+    instanceGroupConfigs: Seq[EmrResourceSpec.InstanceGroupConfig],
     emrManagedMasterSecurityGroup: Option[String],
     emrManagedSlaveSecurityGroup: Option[String],
     additionalMasterSecurityGroupIds: Seq[String],
@@ -93,6 +95,7 @@ object EmrCluster {
     def withTargetOnDemandCapacityOpt(c: Int) = copy(targetOnDemandCapacityOpt = Option(c))
 
     def withTargetSpotCapacityOpt(c: Int) = copy(targetSpotCapacityOpt = Option(c))
+
 
     def withSpotProvisioningSpecification(spec: SpotProvisioningSpecification) =
       copy(spotProvisioningSpecification = Option(spec))
@@ -130,33 +133,41 @@ object EmrCluster {
 
     def withOnDemandOnLastAttempt(use: Boolean) = copy(useOnDemandOnLastAttempt = Option(use))
 
+    def withFleetConfigs(configs: Seq[EmrResourceSpec.InstanceFleetConfig]) =
+      copy(instanceFleetConfigs = instanceFleetConfigs ++ configs)
+
+    def withGroupConfigs(configs: Seq[EmrResourceSpec.InstanceGroupConfig]) =
+      copy(instanceGroupConfigs = instanceGroupConfigs ++ configs)
+
     def build()(implicit ctx: SpadeContext, sac: SpadeAwsContext): Resource[EmrCluster] = {
 
       val id = UUID.randomUUID().toString()
       val name = nameOpt.getOrElse(s"EmrCluster-$id")
       val enableFleet = enableInstanceFleet.contains(true)
       val instanceCount = instanceCountOpt.getOrElse(sac.emr.instanceCount)
-      val instanceGroupConfigs =
+      val instGroupConfigs =
         if (enableFleet) None
         else {
-          val firstMasterInstanceOpt = masterInstanceTypes.headOption
-          val firstCoreInstanceOpt = coreInstanceTypes.headOption
-          Some(
-            Seq(
-              EmrResourceSpec.InstanceGroupConfig(
-                s"${InstanceRoleType.Master}",
-                1,
-                firstMasterInstanceOpt.map(_.instanceType).getOrElse(sac.emr.masterInstanceType),
-                firstMasterInstanceOpt.flatMap(_.bidPrice),
-              ),
-              EmrResourceSpec.InstanceGroupConfig(
-                s"${InstanceRoleType.Core}",
-                scala.math.max(instanceCount - 1, 1),
-                firstCoreInstanceOpt.map(_.instanceType).getOrElse(sac.emr.coreInstanceType),
-                firstCoreInstanceOpt.flatMap(_.bidPrice)
+          if (instanceGroupConfigs.isEmpty) {
+            val firstMasterInstanceOpt = masterInstanceTypes.headOption
+            val firstCoreInstanceOpt = coreInstanceTypes.headOption
+            Some(
+              Seq(
+                EmrResourceSpec.InstanceGroupConfig(
+                  s"${InstanceRoleType.Master}",
+                  1,
+                  firstMasterInstanceOpt.map(_.instanceType).getOrElse(sac.emr.masterInstanceType),
+                  firstMasterInstanceOpt.flatMap(_.bidPrice)
+                ),
+                EmrResourceSpec.InstanceGroupConfig(
+                  s"${InstanceRoleType.Core}",
+                  scala.math.max(instanceCount - 1, 1),
+                  firstCoreInstanceOpt.map(_.instanceType).getOrElse(sac.emr.coreInstanceType),
+                  firstCoreInstanceOpt.flatMap(_.bidPrice)
+                )
               )
             )
-          )
+          } else Some(instanceGroupConfigs)
         }
 
       val defaultSpotProvisionSpec = SpotProvisioningSpecification(
@@ -169,28 +180,33 @@ object EmrCluster {
         s"${OnDemandAllocationStrategy.LowestPrice}"
       )
 
-      val instanceFleetConfigs ={
+      val instFleetConfigs ={
         if (enableFleet) {
-          Some(
-            Seq(
-              EmrResourceSpec.InstanceFleetConfig(
-                s"${InstanceRoleType.Master}",
-                1,
-                targetSpotCapacityOpt.map(_ => 1),
-                spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
-                onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
-                masterInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, None))
-              ),
-              EmrResourceSpec.InstanceFleetConfig(
-                s"${InstanceRoleType.Core}",
-                scala.math.max(targetOnDemandCapacityOpt.getOrElse(sac.emr.targetCapacity) - 1, 1),
-                targetSpotCapacityOpt.map(r => scala.math.max(r - 1, 1)),
-                spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
-                onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
-                coreInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, r.weightedCapacity))
+          if (instanceFleetConfigs.isEmpty) {
+            Some(
+              Seq(
+                EmrResourceSpec.InstanceFleetConfig(
+                  s"${InstanceRoleType.Master}",
+                  1,
+                  targetSpotCapacityOpt.map(_ => 1),
+                  spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
+                  onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
+                  masterInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, None))
+                ),
+                EmrResourceSpec.InstanceFleetConfig(
+                  s"${InstanceRoleType.Core}",
+                  scala.math
+                    .max(targetOnDemandCapacityOpt.getOrElse(sac.emr.targetCapacity) - 1, 1),
+                  targetSpotCapacityOpt.map(r => scala.math.max(r - 1, 1)),
+                  spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
+                  onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
+                  coreInstanceTypes.map(r =>
+                    InstanceTypeConfig(r.instanceType, r.bidPrice, r.weightedCapacity)
+                  )
+                )
               )
             )
-          )
+          } else Some(instanceFleetConfigs)
         } else None
       }
 
@@ -211,8 +227,8 @@ object EmrCluster {
             if (subnetIds.nonEmpty) Some(subnetIds.head) else Some(sac.emr.subnetId),
             if (subnetIds.nonEmpty) Some(subnetIds) else Some(Seq(sac.emr.subnetId)),
             sac.emr.ec2KeyName,
-            instanceGroupConfigs,
-            instanceFleetConfigs,
+            instGroupConfigs,
+            instFleetConfigs,
             emrManagedMasterSecurityGroup,
             emrManagedSlaveSecurityGroup,
             additionalMasterSecurityGroupIds.asOption(),
@@ -240,6 +256,8 @@ object EmrCluster {
     onDemandProvisioningSpecification = None,
     masterInstanceTypes = Seq.empty,
     coreInstanceTypes = Seq.empty,
+    instanceFleetConfigs = Seq.empty,
+    instanceGroupConfigs = Seq.empty,
     emrManagedMasterSecurityGroup = None,
     emrManagedSlaveSecurityGroup = None,
     additionalMasterSecurityGroupIds = Seq.empty,
