@@ -48,7 +48,8 @@ object EmrResourceSpec {
   case class InstanceTypeConfig(
     instanceType: String,
     bidPrice: Option[String],
-    weightedCapacity: Option[Int]
+    weightedCapacity: Option[Int],
+    priority: Option[Double]
   )
 
   case class SpotProvisioningSpecification(
