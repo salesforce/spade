@@ -191,7 +191,7 @@ object EmrCluster {
                   targetSpotCapacityOpt.map(_ => 1),
                   spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
                   onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
-                  masterInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, None))
+                  masterInstanceTypes.map(r => InstanceTypeConfig(r.instanceType, r.bidPrice, None, r.priority))
                 ),
                 EmrResourceSpec.InstanceFleetConfig(
                   s"${InstanceRoleType.Core}",
@@ -201,7 +201,7 @@ object EmrCluster {
                   spotProvisioningSpecification.orElse(Some(defaultSpotProvisionSpec)),
                   onDemandProvisioningSpecification.orElse(Some(defaultOnDemandProvisionSpec)),
                   coreInstanceTypes.map(r =>
-                    InstanceTypeConfig(r.instanceType, r.bidPrice, r.weightedCapacity)
+                    InstanceTypeConfig(r.instanceType, r.bidPrice, r.weightedCapacity, r.priority)
                   )
                 )
               )
