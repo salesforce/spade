@@ -28,7 +28,7 @@ lazy val publishSettings = Seq(
   ),
   credentials += Credentials(
     "Sonatype Nexus Repository Manager",
-    "central.sonatype.org",
+    "oss.sonatype.org",
     sys.env.getOrElse("SONATYPE_USERNAME",""),
     sys.env.getOrElse("SONATYPE_PASSWORD","")
   ),
@@ -40,7 +40,8 @@ lazy val publishSettings = Seq(
       url = url("http://github.com/realstraw")
     )
   ),
-  useGpgPinentry := true
+  useGpgPinentry := true,
+  ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 )
 
 lazy val noPublishSettings = Seq(
